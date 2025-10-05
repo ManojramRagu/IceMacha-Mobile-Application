@@ -25,7 +25,7 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AppTopBar(),
+      appBar: AppTopBar(onLogoTap: () => setState(() => _index = 0)),
       body: IndexedStack(index: _index, children: _pages),
       bottomNavigationBar: AppBottomNav(
         currentIndex: _index,
