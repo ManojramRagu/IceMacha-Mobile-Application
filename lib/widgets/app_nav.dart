@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
-// TOP NAVIGATION BAR
+/// ================= TOP APP BAR =================
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   const AppTopBar({super.key, this.onLogoTap, this.onMenuTap});
 
+  /// Tap logo → go Home (AppShell sets this).
   final VoidCallback? onLogoTap;
 
+  /// Open the left drawer (AppShell provides this).
   final VoidCallback? onMenuTap;
 
   static const _logo = 'assets/img/logo.webp';
@@ -38,6 +40,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
+      // No trailing actions on purpose.
     );
   }
 
@@ -45,7 +48,10 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-// BOTTOM NAVIGATION BAR
+/// ================= BOTTOM NAV BAR =================
+/// Selected tab shows a filled pill using `colorScheme.primary` with
+/// contrasting `onPrimary`. Labels always visible below icons.
+/// Pass `currentIndex = -1` to show no selection (e.g., About/Contact).
 class AppBottomNav extends StatelessWidget {
   const AppBottomNav({
     super.key,
@@ -56,25 +62,15 @@ class AppBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onChanged;
 
-  static const _base = 'assets/img/icons';
-  static const _home = '$_base/home.png';
-  static const _homeFilled = '$_base/home-filled.png';
-  static const _menu = '$_base/menu.png';
-  static const _menuFilled = '$_base/menu-filled.png';
-  static const _cart = '$_base/cart.png';
-  static const _cartFilled = '$_base/cart-filled.png';
-  static const _account = '$_base/account.png';
-  static const _accountFill = '$_base/account-filled.png';
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
     const items = <_NavItem>[
-      _NavItem('Home', _home, _homeFilled),
-      _NavItem('Menu', _menu, _menuFilled),
-      _NavItem('Cart', _cart, _cartFilled),
-      _NavItem('Profile', _account, _accountFill),
+      _NavItem('Home', Icons.home_outlined, Icons.home),
+      _NavItem('Menu', Icons.menu_book_outlined, Icons.menu_book),
+      _NavItem('Cart', Icons.shopping_cart_outlined, Icons.shopping_cart),
+      _NavItem('Profile', Icons.person_outline, Icons.person),
     ];
 
     return SafeArea(
@@ -88,7 +84,7 @@ class AppBottomNav extends StatelessWidget {
         child: Row(
           children: List.generate(items.length, (i) {
             final selected = i == currentIndex;
-            final iconPath = selected ? items[i].filled : items[i].outline;
+            final icon = selected ? items[i].filled : items[i].outline;
 
             return Expanded(
               child: InkWell(
@@ -117,7 +113,11 @@ class AppBottomNav extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Image.asset(iconPath, height: 26, fit: BoxFit.contain),
+                      Icon(
+                        icon,
+                        size: 26,
+                        color: selected ? cs.onPrimary : cs.onSurfaceVariant,
+                      ),
                       const SizedBox(height: 6),
                       Text(
                         items[i].label,
@@ -144,7 +144,7 @@ class AppBottomNav extends StatelessWidget {
 
 class _NavItem {
   final String label;
-  final String outline;
-  final String filled;
+  final IconData outline;
+  final IconData filled;
   const _NavItem(this.label, this.outline, this.filled);
 }
