@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
-/// ================= TOP APP BAR =================
+// TOP NAVIGATION BAR
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   const AppTopBar({super.key, this.onLogoTap, this.onMenuTap});
 
-  /// Tap logo → go Home (AppShell sets this).
   final VoidCallback? onLogoTap;
 
-  /// Open the left drawer (AppShell provides this).
   final VoidCallback? onMenuTap;
 
   static const _logo = 'assets/img/logo.webp';
@@ -40,7 +38,6 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      // No trailing actions on purpose.
     );
   }
 
@@ -48,10 +45,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-/// ================= BOTTOM NAV BAR =================
-/// Selected tab shows a filled pill using `colorScheme.primary` with
-/// contrasting `onPrimary`. Labels always visible below icons.
-/// Pass `currentIndex = -1` to show no selection (e.g., About/Contact).
+// BOTTOM NAVIGATION
 class AppBottomNav extends StatelessWidget {
   const AppBottomNav({
     super.key,
