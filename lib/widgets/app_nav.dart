@@ -90,28 +90,21 @@ class AppBottomNav extends StatelessWidget {
               child: InkWell(
                 borderRadius: BorderRadius.circular(14),
                 onTap: () => onChanged(i),
-                child: Padding(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOutCubic,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 4,
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: selected ? cs.primaryContainer : Colors.transparent,
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          border: selected
-                              ? Border.all(color: cs.primary, width: 2)
-                              : null,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Image.asset(
-                          iconPath,
-                          height: 26,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
+                      Image.asset(iconPath, height: 26, fit: BoxFit.contain),
                       const SizedBox(height: 6),
                       Text(
                         items[i].label,
@@ -121,7 +114,9 @@ class AppBottomNav extends StatelessWidget {
                           fontWeight: selected
                               ? FontWeight.w700
                               : FontWeight.w500,
-                          color: selected ? cs.primary : cs.onSurfaceVariant,
+                          color: selected
+                              ? cs.onPrimaryContainer
+                              : cs.onSurfaceVariant,
                         ),
                       ),
                     ],
