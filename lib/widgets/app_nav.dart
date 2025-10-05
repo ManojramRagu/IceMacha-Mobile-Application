@@ -1,39 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:icemacha/widgets/app_menu.dart';
 
 // TOP NAVIGATION BAR
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
-  const AppTopBar({super.key});
+  const AppTopBar({super.key, this.onLogoTap});
+
+  final VoidCallback? onLogoTap;
 
   static const _logo = 'assets/img/logo.webp';
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return AppBar(
-      leading: IconButton(icon: const Icon(Icons.menu), onPressed: () {}),
+      leading: IconButton(
+        icon: const Icon(Icons.menu),
+        tooltip: 'Menu',
+        onPressed: () => showAppMenu(context),
+      ),
       centerTitle: true,
-      title: SizedBox(
-        height: 28,
-        child: Image.asset(
-          _logo,
-          fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => Text(
-            'IceMacha',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(color: Colors.white),
+      title: GestureDetector(
+        onTap: onLogoTap,
+        child: ClipOval(
+          child: Container(
+            width: 32,
+            height: 32,
+            color: Colors.white.withValues(alpha: 0.9),
+            padding: const EdgeInsets.all(2),
+            child: Image.asset(
+              _logo,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) =>
+                  Icon(Icons.local_cafe, color: cs.onPrimary),
+            ),
           ),
         ),
       ),
-      actions: const [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 6),
-          child: Icon(Icons.shopping_cart_outlined),
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 12),
-          child: Icon(Icons.person_outline),
-        ),
-      ],
     );
   }
 
@@ -66,11 +69,11 @@ class AppBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    final items = <_NavItem>[
-      const _NavItem('Home', _home, _homeFilled),
-      const _NavItem('Menu', _menu, _menuFilled),
-      const _NavItem('Cart', _cart, _cartFilled),
-      const _NavItem('Profile', _account, _accountFill),
+    const items = <_NavItem>[
+      _NavItem('Home', _home, _homeFilled),
+      _NavItem('Menu', _menu, _menuFilled),
+      _NavItem('Cart', _cart, _cartFilled),
+      _NavItem('Profile', _account, _accountFill),
     ];
 
     return SafeArea(
@@ -91,15 +94,24 @@ class AppBottomNav extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 onTap: () => onChanged(i),
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 180),
                   curve: Curves.easeOutCubic,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 6,
+                    horizontal: 10,
+                    vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: selected ? cs.primaryContainer : Colors.transparent,
+                    color: selected ? cs.primary : Colors.transparent,
                     borderRadius: BorderRadius.circular(14),
+                    boxShadow: selected
+                        ? [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.10),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -114,9 +126,7 @@ class AppBottomNav extends StatelessWidget {
                           fontWeight: selected
                               ? FontWeight.w700
                               : FontWeight.w500,
-                          color: selected
-                              ? cs.onPrimaryContainer
-                              : cs.onSurfaceVariant,
+                          color: selected ? cs.onPrimary : cs.onSurfaceVariant,
                         ),
                       ),
                     ],
