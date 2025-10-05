@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:icemacha/widgets/app_menu.dart';
 
 // TOP NAVIGATION BAR
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
-  const AppTopBar({super.key, this.onLogoTap});
+  const AppTopBar({super.key, this.onLogoTap, this.onMenuTap});
 
   final VoidCallback? onLogoTap;
+
+  final VoidCallback? onMenuTap;
 
   static const _logo = 'assets/img/logo.webp';
 
@@ -17,7 +18,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(Icons.menu),
         tooltip: 'Menu',
-        onPressed: () => showAppMenu(context),
+        onPressed: onMenuTap,
       ),
       centerTitle: true,
       title: GestureDetector(

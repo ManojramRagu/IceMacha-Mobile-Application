@@ -1,45 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:icemacha/screens/about.dart';
-import 'package:icemacha/screens/contact.dart';
 
-Future<void> showAppMenu(BuildContext context) {
-  final cs = Theme.of(context).colorScheme;
+class AppDrawer extends StatelessWidget {
+  const AppDrawer({super.key, required this.onAbout, required this.onContact});
 
-  return showModalBottomSheet<void>(
-    context: context,
-    useSafeArea: true,
-    showDragHandle: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
-    builder: (context) => SafeArea(
-      top: false,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: Icon(Icons.info_outline, color: cs.primary),
-            title: const Text('About'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const AboutScreen()));
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.mail_outline, color: cs.primary),
-            title: const Text('Contact'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const ContactScreen()));
-            },
-          ),
-          const SizedBox(height: 8),
-        ],
+  final VoidCallback onAbout;
+  final VoidCallback onContact;
+
+  static const _logo = 'assets/img/logo.webp';
+
+  @override
+  Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+
+    return Drawer(
+      child: SafeArea(
+        child: Column(
+          children: [
+            ListTile(
+              leading: ClipOval(
+                child: Image.asset(
+                  _logo,
+                  width: 32,
+                  height: 32,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              title: Text('IceMacha', style: tt.titleMedium),
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.info_outline, color: cs.primary),
+              title: const Text('About'),
+              onTap: onAbout,
+            ),
+            ListTile(
+              leading: Icon(Icons.mail_outline, color: cs.primary),
+              title: const Text('Contact'),
+              onTap: onContact,
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
