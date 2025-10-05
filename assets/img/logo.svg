@@ -1,0 +1,63 @@
+<svg viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient for ice cream scoop -->
+    <radialGradient id="iceCreamGradient" cx="0.3" cy="0.3" r="0.8">
+      <stop offset="0%" style="stop-color:#F5E6E8;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#E8D5D7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D4BFC2;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Gradient for matcha layer -->
+    <radialGradient id="matchaGradient" cx="0.3" cy="0.3" r="0.8">
+      <stop offset="0%" style="stop-color:#9BB8A8;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#7A9B8E;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6B8A7E;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Shadow filter -->
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="3" stdDeviation="2" flood-color="#666666" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  
+  <!-- Background circle for logo -->
+  <circle cx="60" cy="60" r="45" fill="#FFFFFF" stroke="#7A9B8E" stroke-width="2" filter="url(#dropShadow)"/>
+  
+  <!-- Ice cream cone -->
+  <path d="M45 75 L60 95 L75 75 Z" fill="#8B7355" stroke="#6B5A47" stroke-width="1"/>
+  
+  <!-- Waffle pattern on cone -->
+  <line x1="50" y1="80" x2="70" y2="80" stroke="#6B5A47" stroke-width="0.5"/>
+  <line x1="52" y1="85" x2="68" y2="85" stroke="#6B5A47" stroke-width="0.5"/>
+  <line x1="55" y1="90" x2="65" y2="90" stroke="#6B5A47" stroke-width="0.5"/>
+  
+  <!-- Bottom ice cream scoop (vanilla/strawberry) -->
+  <circle cx="60" cy="65" r="12" fill="url(#iceCreamGradient)" filter="url(#dropShadow)"/>
+  
+  <!-- Top ice cream scoop (matcha) -->
+  <circle cx="60" cy="50" r="11" fill="url(#matchaGradient)" filter="url(#dropShadow)"/>
+  
+  <!-- Highlight on scoops -->
+  <ellipse cx="55" cy="47" rx="3" ry="2" fill="#FFFFFF" opacity="0.6"/>
+  <ellipse cx="56" cy="61" rx="2.5" ry="1.8" fill="#FFFFFF" opacity="0.5"/>
+  
+  <!-- Matcha powder sprinkle effect -->
+  <circle cx="65" cy="45" r="0.8" fill="#7A9B8E" opacity="0.7"/>
+  <circle cx="52" cy="52" r="0.6" fill="#7A9B8E" opacity="0.6"/>
+  <circle cx="68" cy="55" r="0.7" fill="#7A9B8E" opacity="0.5"/>
+  
+  <!-- Company name -->
+  <text x="130" y="45" font-family="Georgia, serif" font-size="28" font-weight="bold" fill="#2C2C2C">Ice</text>
+  <text x="180" y="45" font-family="Georgia, serif" font-size="28" font-weight="bold" fill="#7A9B8E">Macha</text>
+  
+  <!-- Subtitle -->
+  <text x="135" y="65" font-family="Arial, sans-serif" font-size="12" fill="#666666" letter-spacing="2px">CAFÉ & TREATS</text>
+  
+  <!-- Decorative elements -->
+  <path d="M130 75 Q150 70 170 75" stroke="#7A9B8E" stroke-width="2" fill="none" opacity="0.6"/>
+  <circle cx="135" cy="78" r="1.5" fill="#F5E6E8"/>
+  <circle cx="165" cy="78" r="1.5" fill="#7A9B8E" opacity="0.7"/>
+  
+  <!-- Small matcha leaf accent -->
+  <path d="M175 72 Q180 68 185 72 Q180 76 175 72" fill="#7A9B8E" opacity="0.8"/>
+</svg>
