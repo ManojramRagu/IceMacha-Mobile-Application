@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// TOP NAVIGATION BAR
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   const AppTopBar({super.key});
 
@@ -40,6 +41,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
+// BOTTOM NAVIGATION BAR
 class AppBottomNav extends StatelessWidget {
   const AppBottomNav({
     super.key,
@@ -50,36 +52,36 @@ class AppBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onChanged;
 
-  static const _icons = 'assets/img/icons';
-  static const _home = '$_icons/home.png';
-  static const _homeFilled = '$_icons/home-filled.png';
-  static const _menu = '$_icons/menu.png';
-  static const _menuFilled = '$_icons/menu-filled.png';
-  static const _cart = '$_icons/cart.png';
-  static const _cartFilled = '$_icons/cart-filled.png';
-  static const _account = '$_icons/account.png';
-  static const _accountFilled = '$_icons/account-filled.png';
+  static const _base = 'assets/img/icons';
+  static const _home = '$_base/home.png';
+  static const _homeFilled = '$_base/home-filled.png';
+  static const _menu = '$_base/menu.png';
+  static const _menuFilled = '$_base/menu-filled.png';
+  static const _cart = '$_base/cart.png';
+  static const _cartFilled = '$_base/cart-filled.png';
+  static const _account = '$_base/account.png';
+  static const _accountFill = '$_base/account-filled.png';
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     final items = <_NavItem>[
-      _NavItem('Home', _home, _homeFilled),
-      _NavItem('Menu', _menu, _menuFilled),
-      _NavItem('Cart', _cart, _cartFilled),
-      _NavItem('Profile', _account, _accountFilled),
+      const _NavItem('Home', _home, _homeFilled),
+      const _NavItem('Menu', _menu, _menuFilled),
+      const _NavItem('Cart', _cart, _cartFilled),
+      const _NavItem('Profile', _account, _accountFill),
     ];
 
     return SafeArea(
       top: false,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
           color: cs.surface,
           border: Border(top: BorderSide(color: cs.outlineVariant)),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(items.length, (i) {
             final selected = i == currentIndex;
             final iconPath = selected ? items[i].filled : items[i].outline;
@@ -91,13 +93,13 @@ class AppBottomNav extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 6,
-                    vertical: 6,
+                    vertical: 4,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(6),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           border: selected
                               ? Border.all(color: cs.primary, width: 2)
@@ -106,13 +108,14 @@ class AppBottomNav extends StatelessWidget {
                         ),
                         child: Image.asset(
                           iconPath,
-                          height: 22,
+                          height: 26,
                           fit: BoxFit.contain,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         items[i].label,
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: selected
