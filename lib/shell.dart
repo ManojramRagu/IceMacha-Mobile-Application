@@ -20,14 +20,10 @@ class _AppShellState extends State<AppShell> {
   int _tabIndex = 0;
   int _pageIndex = 0;
 
-  final _pages = const [
-    HomeScreen(), // 0
-    MenuScreen(), // 1
-    CartScreen(), // 2
-    ProfileScreen(), // 3
-    AboutScreen(), // 4
-    ContactScreen(), // 5
-  ];
+  void _goTab(int i) => setState(() {
+    _tabIndex = i;
+    _pageIndex = i;
+  });
 
   void _openDrawer() => _scaffoldKey.currentState?.openDrawer();
 
@@ -38,17 +34,27 @@ class _AppShellState extends State<AppShell> {
   });
 
   void _openAbout() => setState(() {
-    _pageIndex = 4; // About
+    _pageIndex = 4;
     _scaffoldKey.currentState?.closeDrawer();
   });
 
   void _openContact() => setState(() {
-    _pageIndex = 5; // Contact
+    _pageIndex = 5;
     _scaffoldKey.currentState?.closeDrawer();
   });
 
+  List<Widget> _buildPages() => [
+    HomeScreen(onBuyNow: () => _goTab(1)),
+    const MenuScreen(),
+    const CartScreen(),
+    const ProfileScreen(),
+    const AboutScreen(),
+    const ContactScreen(),
+  ];
+
   @override
   Widget build(BuildContext context) {
+    final pages = _buildPages();
     final hideBottomSelection = _pageIndex >= 4;
 
     return Scaffold(
@@ -58,14 +64,11 @@ class _AppShellState extends State<AppShell> {
 
       drawer: AppDrawer(onAbout: _openAbout, onContact: _openContact),
 
-      body: IndexedStack(index: _pageIndex, children: _pages),
+      body: IndexedStack(index: _pageIndex, children: pages),
 
       bottomNavigationBar: AppBottomNav(
         currentIndex: hideBottomSelection ? -1 : _tabIndex,
-        onChanged: (i) => setState(() {
-          _tabIndex = i;
-          _pageIndex = i;
-        }),
+        onChanged: (i) => _goTab(i),
       ),
     );
   }
