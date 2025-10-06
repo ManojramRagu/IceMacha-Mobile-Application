@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:icemacha/core/theme.dart';
-import 'package:icemacha/screens/auth/auth_gate.dart';
+import 'package:icemacha/core/shell.dart';
+
 import 'package:icemacha/utils/auth_provider.dart';
+import 'package:icemacha/utils/product_catalog_provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -13,13 +17,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ProductCatalogProvider()),
+      ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
-        home: const AuthGate(),
+        themeMode: ThemeMode.system,
+        home: const AppShell(initialTabIndex: 3),
       ),
     );
   }
