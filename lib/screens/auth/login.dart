@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:icemacha/utils/auth_provider.dart';
 import 'package:icemacha/utils/validation.dart';
+import 'package:icemacha/widgets/form.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback onRegisterTap;
@@ -59,43 +60,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return Form(
       key: _formKey,
       autovalidateMode: _auto,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant),
-        ),
+      child: AuthCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextFormField(
-              controller: _email,
-              decoration: const InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-              validator: Validators.email(),
-              autofillHints: const [AutofillHints.email],
-            ),
+            EmailField(controller: _email),
             const SizedBox(height: 12),
 
-            TextFormField(
+            PasswordField(
               controller: _password,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                suffixIcon: IconButton(
-                  onPressed: () => setState(() => _obscure = !_obscure),
-                  icon: Icon(
-                    _obscure ? Icons.visibility_off : Icons.visibility,
-                  ),
-                ),
-              ),
-              obscureText: _obscure,
+              label: 'Password',
               textInputAction: TextInputAction.done,
               validator: Validators.compose([
                 Validators.required('Password'),
@@ -114,16 +91,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
             Align(
               alignment: Alignment.centerRight,
-              child: FilledButton.icon(
-                icon: _busy
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.login),
-                label: Text(_busy ? 'Signing in…' : 'Sign in'),
-                onPressed: _busy ? null : _submit,
+              child: PrimaryBusyButton(
+                busy: _busy,
+                label: 'Sign in',
+                busyLabel: 'Signing in…',
+                icon: Icons.login,
+                onPressed: _submit,
               ),
             ),
           ],
