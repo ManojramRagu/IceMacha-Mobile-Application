@@ -43,14 +43,18 @@ class MenuSection extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Text(
-                title,
-                style: tt.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: cs.primary,
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: tt.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: cs.primary,
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               TextButton(onPressed: onToggleExpand, child: Text(linkText)),
             ],
           ),

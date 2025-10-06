@@ -5,14 +5,12 @@ import 'package:icemacha/utils/product_catalog_provider.dart';
 import 'package:icemacha/widgets/product_card.dart';
 
 class CategoryBrowse extends StatelessWidget {
-  final String categoryPath; // e.g. "Food/Breakfast" or "Promotions"
+  final String categoryPath;
   const CategoryBrowse({super.key, required this.categoryPath});
 
   @override
   Widget build(BuildContext context) {
     final catalog = context.watch<ProductCatalogProvider>();
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
 
     final isPromos = categoryPath == 'Promotions';
     final items = isPromos
@@ -41,8 +39,7 @@ class CategoryBrowse extends StatelessWidget {
                 return ProductCard(
                   product: p,
                   width: cardWidth,
-                  height:
-                      cardHeight, // IMPORTANT: matches ProductCard’s new API
+                  height: cardHeight,
                   onTap: () {}, // TODO: open item page
                   onAdd: () {}, // TODO: add to cart
                 );

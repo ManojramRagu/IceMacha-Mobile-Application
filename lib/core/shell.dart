@@ -1,4 +1,3 @@
-// lib/core/shell.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,12 +14,9 @@ import 'package:icemacha/screens/contact.dart';
 import 'package:icemacha/utils/auth_provider.dart';
 
 class AppShell extends StatefulWidget {
-  /// Tabs: 0=Home, 1=Menu, 2=Cart, 3=Profile
+  /// Tabs: 0=Home, 1=Menu, 2=Cart, 3=Profile (Login/Register)
   final int initialTabIndex;
-  const AppShell({
-    super.key,
-    this.initialTabIndex = 3,
-  }); // default to Profile(Login)
+  const AppShell({super.key, this.initialTabIndex = 3}); // default to Profile
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -28,11 +24,10 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  late int _tabIndex; // 0..3
+  late int _pageIndex; // 0..5 (About/Contact inside stack)
 
-  late int _tabIndex; // bottom nav highlight (0..3, or -1 for about/contact)
-  late int _pageIndex; // IndexedStack index (0..5)
-
-  AuthProvider? _auth; // hold ref to add/remove listener
+  AuthProvider? _auth;
 
   @override
   void initState() {
@@ -57,12 +52,10 @@ class _AppShellState extends State<AppShell> {
     final authed = _auth!.isAuthenticated;
     setState(() {
       if (authed) {
-        // After login -> Home
-        _tabIndex = 0;
+        _tabIndex = 0; // Home after login
         _pageIndex = 0;
       } else {
-        // After logout -> Profile (login form)
-        _tabIndex = 3;
+        _tabIndex = 3; // back to login/register
         _pageIndex = 3;
       }
     });
@@ -74,7 +67,6 @@ class _AppShellState extends State<AppShell> {
     super.dispose();
   }
 
-  // Block switching to other tabs unless authenticated
   void _goTab(int i) {
     final authed = context.read<AuthProvider>().isAuthenticated;
     if (!authed && i != 3) {
@@ -82,8 +74,6 @@ class _AppShellState extends State<AppShell> {
         _tabIndex = 3;
         _pageIndex = 3;
       });
-      // Optional hint:
-      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please log in first.')));
       return;
     }
     setState(() {
@@ -109,12 +99,12 @@ class _AppShellState extends State<AppShell> {
   }
 
   void _openAbout() => setState(() {
-    _pageIndex = 4; // keep bars; hide bottom highlight via -1 below
+    _pageIndex = 4;
     _scaffoldKey.currentState?.closeDrawer();
   });
 
   void _openContact() => setState(() {
-    _pageIndex = 5; // keep bars; hide bottom highlight via -1 below
+    _pageIndex = 5;
     _scaffoldKey.currentState?.closeDrawer();
   });
 
@@ -129,18 +119,29 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
+    final authed = context.watch<AuthProvider>().isAuthenticated;
     final pages = _buildPages();
-    final hideBottomSelection = _pageIndex >= 4; // About/Contact
+
+    final onAuthScreens =
+        _pageIndex == 3 && !authed; // Profile tab & not logged in
+    final hideBottomSelection = _pageIndex >= 4 || onAuthScreens;
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppTopBar(onMenuTap: _openDrawer, onLogoTap: _goHome),
-      drawer: AppDrawer(onAbout: _openAbout, onContact: _openContact),
+      // Hide bars when on login/register
+      appBar: onAuthScreens
+          ? null
+          : AppTopBar(onMenuTap: _openDrawer, onLogoTap: _goHome),
+      drawer: onAuthScreens
+          ? null
+          : AppDrawer(onAbout: _openAbout, onContact: _openContact),
       body: IndexedStack(index: _pageIndex, children: pages),
-      bottomNavigationBar: AppBottomNav(
-        currentIndex: hideBottomSelection ? -1 : _tabIndex,
-        onChanged: _goTab,
-      ),
+      bottomNavigationBar: onAuthScreens
+          ? null
+          : AppBottomNav(
+              currentIndex: hideBottomSelection ? -1 : _tabIndex,
+              onChanged: _goTab,
+            ),
     );
   }
 }
