@@ -10,8 +10,8 @@ class CategoryBrowse extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final catalog = context.watch<ProductCatalogProvider>();
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
+    // final cs = Theme.of(context).colorScheme;
+    // final tt = Theme.of(context).textTheme;
 
     final isPromos = categoryPath == 'Promotions';
     final items = isPromos

@@ -6,8 +6,8 @@ import 'package:icemacha/widgets/promo_carousel.dart';
 import 'package:icemacha/widgets/footer.dart';
 import 'package:icemacha/screens/browse/category_browse.dart';
 
-class Menu extends StatelessWidget {
-  const Menu({super.key});
+class MenuScreen extends StatelessWidget {
+  const MenuScreen({super.key});
 
   void _goShowMore(BuildContext context, String categoryPath) {
     Navigator.of(context).push(
