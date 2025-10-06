@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:icemacha/utils/product.dart';
 import 'package:icemacha/utils/product_catalog_provider.dart';
 import 'package:icemacha/widgets/menu_section.dart';
 import 'package:icemacha/widgets/footer.dart';
+import 'package:icemacha/screens/item.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
+
+  void _openItem(BuildContext context, Product p) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => ItemScreen(product: p)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +27,11 @@ class MenuScreen extends StatelessWidget {
 
     final promos = catalog.promotions();
 
-    // Helper to group Beverages / Food headings like your mockup
     String? lastGroup;
     List<Widget> buildSections() {
       final widgets = <Widget>[];
       for (final path in catalog.categoryOrder) {
-        final group = path.split('/').first; // "Beverages" or "Food"
+        final group = path.split('/').first;
         if (group != lastGroup) {
           lastGroup = group;
           widgets.add(
@@ -48,9 +55,7 @@ class MenuScreen extends StatelessWidget {
             products: products,
             expanded: catalog.isExpanded(path),
             onToggleExpand: () => catalog.toggleExpanded(path),
-            onSelect: (_) {
-              // TODO: open item page inside shell
-            },
+            onSelect: (p) => _openItem(context, p),
           ),
         );
       }
@@ -62,7 +67,6 @@ class MenuScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Hero banner (matches your other pages)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ClipRRect(
@@ -75,7 +79,6 @@ class MenuScreen extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // Title
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
@@ -90,10 +93,8 @@ class MenuScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // All regular category sections
           ...buildSections(),
 
-          // Promotions – now the SAME UX as other sections
           if (promos.isNotEmpty)
             MenuSection(
               key: const ValueKey('Promotions'),
@@ -101,9 +102,7 @@ class MenuScreen extends StatelessWidget {
               products: promos,
               expanded: catalog.isExpanded('Promotions'),
               onToggleExpand: () => catalog.toggleExpanded('Promotions'),
-              onSelect: (_) {
-                // TODO: open item page
-              },
+              onSelect: (p) => _openItem(context, p),
             ),
 
           const SizedBox(height: 24),
