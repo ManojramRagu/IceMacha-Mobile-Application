@@ -11,6 +11,8 @@ class ContactScreen extends StatefulWidget {
 
 class _ContactScreenState extends State<ContactScreen> {
   final _formKey = GlobalKey<FormState>();
+  AutovalidateMode _autoValidate = AutovalidateMode.disabled;
+
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _message = TextEditingController();
@@ -24,7 +26,12 @@ class _ContactScreenState extends State<ContactScreen> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+    final valid = _formKey.currentState?.validate() ?? false;
+    if (!valid) {
+      setState(() => _autoValidate = AutovalidateMode.onUserInteraction);
+      return;
+    }
+
     FocusScope.of(context).unfocus();
 
     await showDialog<void>(
@@ -35,9 +42,13 @@ class _ContactScreenState extends State<ContactScreen> {
       ),
     );
 
-    _name.clear();
-    _email.clear();
-    _message.clear();
+    setState(() {
+      _formKey.currentState?.reset();
+      _autoValidate = AutovalidateMode.disabled;
+      _name.clear();
+      _email.clear();
+      _message.clear();
+    });
   }
 
   @override
@@ -52,7 +63,7 @@ class _ContactScreenState extends State<ContactScreen> {
         children: [
           Center(
             child: Text(
-              'ContactScreen IceMacha',
+              'Contact IceMacha',
               style: tt.titleLarge?.copyWith(
                 fontWeight: FontWeight.w700,
                 color: cs.primary,
@@ -66,7 +77,7 @@ class _ContactScreenState extends State<ContactScreen> {
               constraints: const BoxConstraints(maxWidth: 520),
               child: Form(
                 key: _formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
+                autovalidateMode: _autoValidate,
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
