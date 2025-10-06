@@ -55,7 +55,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       context: context,
       builder: (_) => const AlertDialog(
         title: Text('Registered'),
-        content: Text('Account created (demo). Please sign in to continue.'),
+        content: Text('Account created. Please sign in to continue.'),
       ),
     );
 
