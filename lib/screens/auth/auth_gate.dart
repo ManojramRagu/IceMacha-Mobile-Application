@@ -12,11 +12,9 @@ class AuthGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-
     if (auth.isAuthenticated) {
       return const AppShell();
     }
-
     return const _AuthEntry();
   }
 }
@@ -47,24 +45,34 @@ class _AuthEntryState extends State<_AuthEntry> {
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Text(
-                  'Sign in to IceMacha',
-                  style: tt.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: cs.primary,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final kb = MediaQuery.of(context).viewInsets.bottom;
+            return SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(16, 20, 16, 24 + kb),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _mode == _Mode.login
+                            ? 'Sign in to IceMacha'
+                            : 'Create your account',
+                        style: tt.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: cs.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      PageBodyNarrow(child: body),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              PageBodyNarrow(child: body),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
