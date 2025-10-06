@@ -1,0 +1,171 @@
+[
+  {
+    "id": "americano",
+    "title": "Americano",
+    "categoryPath": "Beverages/Hot",
+    "price": 400,
+    "imagePath": "assets/img/products/Beverages/Hot/Americano.webp",
+    "description": "Bold espresso topped with hot water.",
+    "isPromotion": false
+  },
+  {
+    "id": "cafe-latte",
+    "title": "Cafe Latte",
+    "categoryPath": "Beverages/Hot",
+    "price": 450,
+    "imagePath": "assets/img/products/Beverages/Hot/Cafe-Latte.webp",
+    "description": "Smooth espresso with steamed milk.",
+    "isPromotion": false
+  },
+  {
+    "id": "espresso",
+    "title": "Espresso",
+    "categoryPath": "Beverages/Hot",
+    "price": 500,
+    "imagePath": "assets/img/products/Beverages/Hot/Espresso.webp",
+    "description": "Rich, concentrated espresso shot.",
+    "isPromotion": false
+  },
+
+  {
+    "id": "chilled-coffee",
+    "title": "Chilled Coffee",
+    "categoryPath": "Beverages/Cold",
+    "price": 500,
+    "imagePath": "assets/img/products/Beverages/Cold/Chilled-Coffee.webp",
+    "description": "Icy, refreshing coffee.",
+    "isPromotion": false
+  },
+  {
+    "id": "mango-smoothie",
+    "title": "Mango Smoothie",
+    "categoryPath": "Beverages/Cold",
+    "price": 400,
+    "imagePath": "assets/img/products/Beverages/Cold/Mango-Smoothie.webp",
+    "description": "Thick blend of mango and milk.",
+    "isPromotion": false
+  },
+  {
+    "id": "strawberry-milkshake",
+    "title": "Strawberry Milkshake",
+    "categoryPath": "Beverages/Cold",
+    "price": 700,
+    "imagePath": "assets/img/products/Beverages/Cold/Strawberry-Milkshake.webp",
+    "description": "Creamy shake with fresh strawberry.",
+    "isPromotion": false
+  },
+
+  {
+    "id": "avocado-toast",
+    "title": "Avocado Toast",
+    "categoryPath": "Food/Breakfast",
+    "price": 600,
+    "imagePath": "assets/img/products/Food/Breakfast/Avocado-Toast.webp",
+    "description": "Sourdough with smashed avocado.",
+    "isPromotion": false
+  },
+  {
+    "id": "classic-english-breakfast",
+    "title": "Classic English Breakfast",
+    "categoryPath": "Food/Breakfast",
+    "price": 1200,
+    "imagePath": "assets/img/products/Food/Breakfast/Classic-English-Breakfast.webp",
+    "description": "Eggs, sausage, toast and more.",
+    "isPromotion": false
+  },
+
+  {
+    "id": "tiramisu",
+    "title": "Tiramisu",
+    "categoryPath": "Food/Desserts",
+    "price": 800,
+    "imagePath": "assets/img/products/Food/Desserts/Tiramisu.webp",
+    "description": "Coffee-soaked layers, mascarpone cream.",
+    "isPromotion": false
+  },
+  {
+    "id": "ice-cream-sundae",
+    "title": "Ice Cream Sundae",
+    "categoryPath": "Food/Desserts",
+    "price": 650,
+    "imagePath": "assets/img/products/Food/Desserts/Ice-Cream-Sundae.webp",
+    "description": "Scoop, sauce, and sprinkles.",
+    "isPromotion": false
+  },
+
+  {
+    "id": "bbq-chicken-pizza",
+    "title": "BBQ Chicken Pizza",
+    "categoryPath": "Food/Dinner",
+    "price": 1400,
+    "imagePath": "assets/img/products/Food/Dinner/BBQ-Chicken-Pizza.webp",
+    "description": "BBQ sauce, chicken, onions, mozzarella.",
+    "isPromotion": false
+  },
+  {
+    "id": "burger-and-fries",
+    "title": "Burger and Fries",
+    "categoryPath": "Food/Dinner",
+    "price": 1100,
+    "imagePath": "assets/img/products/Food/Dinner/Burger-and-Fries.webp",
+    "description": "Grilled burger with crispy fries.",
+    "isPromotion": false
+  },
+
+  {
+    "id": "rice-and-curry",
+    "title": "Rice and Curry",
+    "categoryPath": "Food/Lunch",
+    "price": 900,
+    "imagePath": "assets/img/products/Food/Lunch/Rice-and-Curry.webp",
+    "description": "Steamed rice with assorted curries.",
+    "isPromotion": false
+  },
+  {
+    "id": "spaghetti-bolognese",
+    "title": "Spaghetti Bolognese",
+    "categoryPath": "Food/Lunch",
+    "price": 950,
+    "imagePath": "assets/img/products/Food/Lunch/Spaghetti-Bolognese.webp",
+    "description": "Slow-cooked meat sauce over pasta.",
+    "isPromotion": false
+  },
+
+  {
+    "id": "chicken-nuggets",
+    "title": "Chicken Nuggets",
+    "categoryPath": "Food/Snacks",
+    "price": 550,
+    "imagePath": "assets/img/products/Food/Snacks/Chicken-Nuggets.webp",
+    "description": "Crispy bite-sized chicken.",
+    "isPromotion": false
+  },
+  {
+    "id": "french-fries",
+    "title": "French Fries",
+    "categoryPath": "Food/Snacks",
+    "price": 400,
+    "imagePath": "assets/img/products/Food/Snacks/French-Fries.webp",
+    "description": "Golden, salted fries.",
+    "isPromotion": false
+  },
+
+  {
+    "id": "coffee-lovers",
+    "title": "Coffee Lovers",
+    "categoryPath": "Promotions",
+    "price": 900,
+    "imagePath": "assets/img/products/Promotions/Coffee-Lovers.webp",
+    "description": "Combo for coffee fans.",
+    "isPromotion": true
+  },
+  {
+    "id": "festive-treats",
+    "title": "Festive Treats",
+    "categoryPath": "Promotions",
+    "price": 1200,
+    "imagePath": "assets/img/products/Promotions/Festive-Treats.webp",
+    "description": "Seasonal selection to share.",
+    "isPromotion": true
+  }
+]
