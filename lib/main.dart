@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:icemacha/core/theme.dart';
 import 'package:icemacha/core/shell.dart';
+
 import 'package:icemacha/utils/auth_provider.dart';
 import 'package:icemacha/utils/product_catalog_provider.dart';
 
@@ -23,7 +25,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
-        home: const AppShell(),
+        home:
+            const AppShell(), // Profile tab still shows Login first (session-only)
       ),
     );
   }

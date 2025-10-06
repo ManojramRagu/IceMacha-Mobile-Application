@@ -3,12 +3,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:icemacha/utils/product.dart';
 
+/// Loads assets/data/products.json (nested), flattens to Product list,
+/// exposes helpers + "Show more" inline expansion state.
 class ProductCatalogProvider extends ChangeNotifier {
   bool _isLoading = true;
   List<Product> _all = [];
-  String? showAllFor;
 
-  static const List<String> _categoryOrder = [
+  // Track which sections are expanded ("Show more")
+  final Set<String> _expanded = {};
+
+  // Preferred render order; empty sections are skipped automatically.
+  static const List<String> _preferredOrder = [
     'Beverages/Hot',
     'Beverages/Cold',
     'Food/Breakfast',
@@ -19,8 +24,8 @@ class ProductCatalogProvider extends ChangeNotifier {
   ];
 
   static const Map<String, String> _titles = {
-    'Beverages/Hot': 'Hot Beverages',
-    'Beverages/Cold': 'Cold Beverages',
+    'Beverages/Hot': 'Hot Drinks',
+    'Beverages/Cold': 'Cold Drinks',
     'Food/Breakfast': 'Breakfast',
     'Food/Lunch': 'Lunch',
     'Food/Dinner': 'Dinner',
@@ -31,8 +36,22 @@ class ProductCatalogProvider extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
   List<Product> get allProducts => _all;
-  List<String> get categoryOrder => _categoryOrder;
+
+  /// Final order for Menu (skip empties).
+  List<String> get categoryOrder =>
+      _preferredOrder.where((p) => byCategory(p).isNotEmpty).toList();
+
   String titleFor(String path) => _titles[path] ?? path;
+
+  bool isExpanded(String path) => _expanded.contains(path);
+  void toggleExpanded(String path) {
+    if (_expanded.contains(path)) {
+      _expanded.remove(path);
+    } else {
+      _expanded.add(path);
+    }
+    notifyListeners();
+  }
 
   ProductCatalogProvider() {
     _load();
@@ -51,6 +70,7 @@ class ProductCatalogProvider extends ChangeNotifier {
 
       final List<Product> items = [];
 
+      // Beverages
       for (final e in (bevs['Hot'] as List<dynamic>? ?? [])) {
         items.add(
           Product.fromNested(
@@ -68,6 +88,7 @@ class ProductCatalogProvider extends ChangeNotifier {
         );
       }
 
+      // Food
       const foodSubs = ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Desserts'];
       for (final sub in foodSubs) {
         for (final e in (food[sub] as List<dynamic>? ?? [])) {
@@ -77,6 +98,7 @@ class ProductCatalogProvider extends ChangeNotifier {
         }
       }
 
+      // Promotions
       for (final e in promotions) {
         items.add(Product.fromNested('Promotions', e));
       }
@@ -85,6 +107,7 @@ class ProductCatalogProvider extends ChangeNotifier {
     } catch (e) {
       _all = [];
       if (kDebugMode) {
+        // ignore: avoid_print
         print('Product catalog load error: $e');
       }
     } finally {
@@ -98,9 +121,4 @@ class ProductCatalogProvider extends ChangeNotifier {
 
   List<Product> promotions() =>
       _all.where((p) => p.categoryPath == 'Promotions').toList();
-
-  void setShowAllFor(String? path) {
-    showAllFor = path;
-    notifyListeners();
-  }
 }
