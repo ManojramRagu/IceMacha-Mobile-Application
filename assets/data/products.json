@@ -1,171 +1,78 @@
-[
-  {
-    "id": "americano",
-    "title": "Americano",
-    "categoryPath": "Beverages/Hot",
-    "price": 400,
-    "imagePath": "assets/img/products/Beverages/Hot/Americano.webp",
-    "description": "Bold espresso topped with hot water.",
-    "isPromotion": false
+{
+  "Products": {
+    "Beverages": {
+      "Hot": [
+        { "id": "americano", "title": "Americano", "price": 450, "imagePath": "assets/img/products/Beverages/Hot/Americano.webp", "description": "" },
+        { "id": "cafe-latte", "title": "Cafe Latte", "price": 450, "imagePath": "assets/img/products/Beverages/Hot/Cafe-Latte.webp", "description": "" },
+        { "id": "cappuccino", "title": "Cappuccino", "price": 450, "imagePath": "assets/img/products/Beverages/Hot/Cappuccino.webp", "description": "" },
+        { "id": "espresso", "title": "Espresso", "price": 500, "imagePath": "assets/img/products/Beverages/Hot/Espresso.webp", "description": "" },
+        { "id": "green-tea", "title": "Green Tea", "price": 400, "imagePath": "assets/img/products/Beverages/Hot/Green-Tea.webp", "description": "" },
+        { "id": "hot-cocoa", "title": "Hot Cocoa", "price": 400, "imagePath": "assets/img/products/Beverages/Hot/Hot-Cocoa.webp", "description": "" },
+        { "id": "masala-chai", "title": "Masala Chai", "price": 450, "imagePath": "assets/img/products/Beverages/Hot/Masala-Chai.webp", "description": "" }
+      ],
+      "Cold": [
+        { "id": "chilled-coffee", "title": "Chilled Coffee", "price": 500, "imagePath": "assets/img/products/Beverages/Cold/Chilled-Coffee.webp", "description": "" },
+        { "id": "chocolate-frappe", "title": "Chocolate Frappe", "price": 600, "imagePath": "assets/img/products/Beverages/Cold/Chocolate-Frappe.webp", "description": "" },
+        { "id": "iced-americano", "title": "Iced Americano", "price": 500, "imagePath": "assets/img/products/Beverages/Cold/Iced-Americano.webp", "description": "" },
+        { "id": "lime-juice", "title": "Lime Juice", "price": 400, "imagePath": "assets/img/products/Beverages/Cold/Lime-Juice.webp", "description": "" },
+        { "id": "mango-smoothie", "title": "Mango Smoothie", "price": 500, "imagePath": "assets/img/products/Beverages/Cold/Mango-Smoothie.webp", "description": "" },
+        { "id": "peach-iced-tea", "title": "Peach Iced Tea", "price": 450, "imagePath": "assets/img/products/Beverages/Cold/Peach-Iced-Tea.webp", "description": "" },
+        { "id": "strawberry-milkshake", "title": "Strawberry Milkshake", "price": 650, "imagePath": "assets/img/products/Beverages/Cold/Strawberry-Milkshake.webp", "description": "" }
+      ]
+    },
+    "Food": {
+      "Breakfast": [
+        { "id": "avocado-toast", "title": "Avocado Toast", "price": 900, "imagePath": "assets/img/products/Food/Breakfast/Avocado-Toast.webp", "description": "" },
+        { "id": "chicken-cheese-delight", "title": "Chicken Cheese Delight", "price": 950, "imagePath": "assets/img/products/Food/Breakfast/Chicken-Cheese-Delight.webp", "description": "" },
+        { "id": "chocolate-waffles-delight", "title": "Chocolate Waffles Delight", "price": 950, "imagePath": "assets/img/products/Food/Breakfast/Chocolate-Waffles-Delight.webp", "description": "" },
+        { "id": "classic-english-breakfast", "title": "Classic English Breakfast", "price": 1200, "imagePath": "assets/img/products/Food/Breakfast/Classic-English-Breakfast.webp", "description": "" },
+        { "id": "eggs-on-toast", "title": "Eggs on Toast", "price": 800, "imagePath": "assets/img/products/Food/Breakfast/Eggs-on-Toast.webp", "description": "" },
+        { "id": "maple-syrup-pancakes", "title": "Maple Syrup Pancakes", "price": 900, "imagePath": "assets/img/products/Food/Breakfast/Maple-Syrup-Pancakes.webp", "description": "" },
+        { "id": "omelette-with-vegetables", "title": "Omelette with Vegetables", "price": 850, "imagePath": "assets/img/products/Food/Breakfast/Omelette-with-Vegetables.webp", "description": "" }
+      ],
+      "Lunch": [
+        { "id": "chicken-fried-rice", "title": "Chicken Fried Rice", "price": 1000, "imagePath": "assets/img/products/Food/Lunch/Chicken-Fried-Rice.webp", "description": "" },
+        { "id": "fish-curry", "title": "Fish Curry", "price": 1000, "imagePath": "assets/img/products/Food/Lunch/Fish-Curry.webp", "description": "" },
+        { "id": "grilled-chicken-delight", "title": "Grilled Chicken Delight", "price": 1100, "imagePath": "assets/img/products/Food/Lunch/Grilled-Chicken-Delight.webp", "description": "" },
+        { "id": "paneer-with-naan", "title": "Paneer with Naan", "price": 1000, "imagePath": "assets/img/products/Food/Lunch/Paneer-with-Naan.webp", "description": "" },
+        { "id": "rice-and-curry", "title": "Rice and Curry", "price": 900, "imagePath": "assets/img/products/Food/Lunch/Rice-and-Curry.webp", "description": "" },
+        { "id": "spaghetti-bolognese", "title": "Spaghetti Bolognese", "price": 950, "imagePath": "assets/img/products/Food/Lunch/Spaghetti-Bolognese.webp", "description": "" },
+        { "id": "vegetable-biriyani", "title": "Vegetable Biriyani", "price": 950, "imagePath": "assets/img/products/Food/Lunch/Vegetable-Biriyani.webp", "description": "" }
+      ],
+      "Dinner": [
+        { "id": "bbq-chicken-pizza", "title": "BBQ Chicken Pizza", "price": 1400, "imagePath": "assets/img/products/Food/Dinner/BBQ-Chicken-Pizza.webp", "description": "" },
+        { "id": "burger-and-fries", "title": "Burger and Fries", "price": 1100, "imagePath": "assets/img/products/Food/Dinner/Burger-and-Fries.webp", "description": "" },
+        { "id": "chicken-and-mash", "title": "Chicken and Mash", "price": 1200, "imagePath": "assets/img/products/Food/Dinner/Chicken-and-Mash.webp", "description": "" },
+        { "id": "chicken-kottu", "title": "Chicken Kottu", "price": 1200, "imagePath": "assets/img/products/Food/Dinner/Chicken-Kottu.webp", "description": "" },
+        { "id": "margarita-pizza", "title": "Margarita Pizza", "price": 1300, "imagePath": "assets/img/products/Food/Dinner/Margarita-Pizza.webp", "description": "" },
+        { "id": "seafood-pasta", "title": "Seafood Pasta", "price": 1400, "imagePath": "assets/img/products/Food/Dinner/Seafood-Pasta.webp", "description": "" },
+        { "id": "veggie-noodles", "title": "Veggie Noodles", "price": 1100, "imagePath": "assets/img/products/Food/Dinner/Veggie-Noodles.webp", "description": "" }
+      ],
+      "Snacks": [
+        { "id": "chicken-nuggets", "title": "Chicken Nuggets", "price": 500, "imagePath": "assets/img/products/Food/Snacks/Chicken-Nuggets.webp", "description": "" },
+        { "id": "chicken-popcorn", "title": "Chicken Popcorn", "price": 500, "imagePath": "assets/img/products/Food/Snacks/Chicken-Popcorn.webp", "description": "" },
+        { "id": "french-fries", "title": "French Fries", "price": 400, "imagePath": "assets/img/products/Food/Snacks/French-Fries.webp", "description": "" },
+        { "id": "garlic-bread", "title": "Garlic Bread", "price": 450, "imagePath": "assets/img/products/Food/Snacks/Garlic-Bread.webp", "description": "" },
+        { "id": "mini-sliders", "title": "Mini Sliders", "price": 550, "imagePath": "assets/img/products/Food/Snacks/Mini-Sliders.webp", "description": "" },
+        { "id": "samosa", "title": "Samosa", "price": 450, "imagePath": "assets/img/products/Food/Snacks/Samosa.webp", "description": "" },
+        { "id": "veggies-springrolls", "title": "Veggies Springrolls", "price": 450, "imagePath": "assets/img/products/Food/Snacks/Veggies-Springrolls.webp", "description": "" }
+      ],
+      "Desserts": [
+        { "id": "blueberry-cheesecake", "title": "Blueberry Cheesecake", "price": 900, "imagePath": "assets/img/products/Food/Desserts/Blueberry-Cheesecake.webp", "description": "" },
+        { "id": "chocolate-brownies", "title": "Chocolate Brownies", "price": 700, "imagePath": "assets/img/products/Food/Desserts/Chocolate-Brownies.webp", "description": "" },
+        { "id": "chocolate-lava-cake", "title": "Chocolate Lava Cake", "price": 800, "imagePath": "assets/img/products/Food/Desserts/Chocolate-Lava-Cake.webp", "description": "" },
+        { "id": "fruit-salad-delight", "title": "Fruit Salad Delight", "price": 650, "imagePath": "assets/img/products/Food/Desserts/Fruit-Salad-Delight.webp", "description": "" },
+        { "id": "ice-cream-sundae", "title": "Ice Cream Sundae", "price": 650, "imagePath": "assets/img/products/Food/Desserts/Ice-Cream-Sundae.webp", "description": "" },
+        { "id": "sweet-donut", "title": "Sweet Donut", "price": 500, "imagePath": "assets/img/products/Food/Desserts/Sweet-Donut.webp", "description": "" },
+        { "id": "tiramisu", "title": "Tiramisu", "price": 800, "imagePath": "assets/img/products/Food/Desserts/Tiramisu.webp", "description": "" }
+      ]
+    }
   },
-  {
-    "id": "cafe-latte",
-    "title": "Cafe Latte",
-    "categoryPath": "Beverages/Hot",
-    "price": 450,
-    "imagePath": "assets/img/products/Beverages/Hot/Cafe-Latte.webp",
-    "description": "Smooth espresso with steamed milk.",
-    "isPromotion": false
-  },
-  {
-    "id": "espresso",
-    "title": "Espresso",
-    "categoryPath": "Beverages/Hot",
-    "price": 500,
-    "imagePath": "assets/img/products/Beverages/Hot/Espresso.webp",
-    "description": "Rich, concentrated espresso shot.",
-    "isPromotion": false
-  },
-
-  {
-    "id": "chilled-coffee",
-    "title": "Chilled Coffee",
-    "categoryPath": "Beverages/Cold",
-    "price": 500,
-    "imagePath": "assets/img/products/Beverages/Cold/Chilled-Coffee.webp",
-    "description": "Icy, refreshing coffee.",
-    "isPromotion": false
-  },
-  {
-    "id": "mango-smoothie",
-    "title": "Mango Smoothie",
-    "categoryPath": "Beverages/Cold",
-    "price": 400,
-    "imagePath": "assets/img/products/Beverages/Cold/Mango-Smoothie.webp",
-    "description": "Thick blend of mango and milk.",
-    "isPromotion": false
-  },
-  {
-    "id": "strawberry-milkshake",
-    "title": "Strawberry Milkshake",
-    "categoryPath": "Beverages/Cold",
-    "price": 700,
-    "imagePath": "assets/img/products/Beverages/Cold/Strawberry-Milkshake.webp",
-    "description": "Creamy shake with fresh strawberry.",
-    "isPromotion": false
-  },
-
-  {
-    "id": "avocado-toast",
-    "title": "Avocado Toast",
-    "categoryPath": "Food/Breakfast",
-    "price": 600,
-    "imagePath": "assets/img/products/Food/Breakfast/Avocado-Toast.webp",
-    "description": "Sourdough with smashed avocado.",
-    "isPromotion": false
-  },
-  {
-    "id": "classic-english-breakfast",
-    "title": "Classic English Breakfast",
-    "categoryPath": "Food/Breakfast",
-    "price": 1200,
-    "imagePath": "assets/img/products/Food/Breakfast/Classic-English-Breakfast.webp",
-    "description": "Eggs, sausage, toast and more.",
-    "isPromotion": false
-  },
-
-  {
-    "id": "tiramisu",
-    "title": "Tiramisu",
-    "categoryPath": "Food/Desserts",
-    "price": 800,
-    "imagePath": "assets/img/products/Food/Desserts/Tiramisu.webp",
-    "description": "Coffee-soaked layers, mascarpone cream.",
-    "isPromotion": false
-  },
-  {
-    "id": "ice-cream-sundae",
-    "title": "Ice Cream Sundae",
-    "categoryPath": "Food/Desserts",
-    "price": 650,
-    "imagePath": "assets/img/products/Food/Desserts/Ice-Cream-Sundae.webp",
-    "description": "Scoop, sauce, and sprinkles.",
-    "isPromotion": false
-  },
-
-  {
-    "id": "bbq-chicken-pizza",
-    "title": "BBQ Chicken Pizza",
-    "categoryPath": "Food/Dinner",
-    "price": 1400,
-    "imagePath": "assets/img/products/Food/Dinner/BBQ-Chicken-Pizza.webp",
-    "description": "BBQ sauce, chicken, onions, mozzarella.",
-    "isPromotion": false
-  },
-  {
-    "id": "burger-and-fries",
-    "title": "Burger and Fries",
-    "categoryPath": "Food/Dinner",
-    "price": 1100,
-    "imagePath": "assets/img/products/Food/Dinner/Burger-and-Fries.webp",
-    "description": "Grilled burger with crispy fries.",
-    "isPromotion": false
-  },
-
-  {
-    "id": "rice-and-curry",
-    "title": "Rice and Curry",
-    "categoryPath": "Food/Lunch",
-    "price": 900,
-    "imagePath": "assets/img/products/Food/Lunch/Rice-and-Curry.webp",
-    "description": "Steamed rice with assorted curries.",
-    "isPromotion": false
-  },
-  {
-    "id": "spaghetti-bolognese",
-    "title": "Spaghetti Bolognese",
-    "categoryPath": "Food/Lunch",
-    "price": 950,
-    "imagePath": "assets/img/products/Food/Lunch/Spaghetti-Bolognese.webp",
-    "description": "Slow-cooked meat sauce over pasta.",
-    "isPromotion": false
-  },
-
-  {
-    "id": "chicken-nuggets",
-    "title": "Chicken Nuggets",
-    "categoryPath": "Food/Snacks",
-    "price": 550,
-    "imagePath": "assets/img/products/Food/Snacks/Chicken-Nuggets.webp",
-    "description": "Crispy bite-sized chicken.",
-    "isPromotion": false
-  },
-  {
-    "id": "french-fries",
-    "title": "French Fries",
-    "categoryPath": "Food/Snacks",
-    "price": 400,
-    "imagePath": "assets/img/products/Food/Snacks/French-Fries.webp",
-    "description": "Golden, salted fries.",
-    "isPromotion": false
-  },
-
-  {
-    "id": "coffee-lovers",
-    "title": "Coffee Lovers",
-    "categoryPath": "Promotions",
-    "price": 900,
-    "imagePath": "assets/img/products/Promotions/Coffee-Lovers.webp",
-    "description": "Combo for coffee fans.",
-    "isPromotion": true
-  },
-  {
-    "id": "festive-treats",
-    "title": "Festive Treats",
-    "categoryPath": "Promotions",
-    "price": 1200,
-    "imagePath": "assets/img/products/Promotions/Festive-Treats.webp",
-    "description": "Seasonal selection to share.",
-    "isPromotion": true
-  }
-]
+  "Promotions": [
+    { "id": "coffee-lovers", "title": "Coffee Lovers", "price": 1000, "imagePath": "assets/img/products/Promotions/Coffee-Lovers.webp", "description": "" },
+    { "id": "festive-treats", "title": "Festive Treats", "price": 1200, "imagePath": "assets/img/products/Promotions/Festive-Treats.webp", "description": "" },
+    { "id": "healthy-mornings", "title": "Healthy Mornings", "price": 950, "imagePath": "assets/img/products/Promotions/Healthy-Mornings.webp", "description": "" },
+    { "id": "midnight-snacks", "title": "Midnight Snacks", "price": 900, "imagePath": "assets/img/products/Promotions/Midnight-Snacks.webp", "description": "" },
+    { "id": "summer-coolers", "title": "Summer Coolers", "price": 1100, "imagePath": "assets/img/products/Promotions/Summer-Coolers.webp", "description": "" }
+  ]
+}
