@@ -1,12 +1,13 @@
-// lib/screens/auth/register_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:icemacha/utils/validation.dart';
 import 'package:icemacha/utils/auth_provider.dart';
+import 'package:icemacha/widgets/form.dart';
 
 class RegisterScreen extends StatefulWidget {
   final VoidCallback onLoginTap;
-  final VoidCallback onRegistered; // call to go back to Login
+  final VoidCallback onRegistered;
+
   const RegisterScreen({
     super.key,
     required this.onLoginTap,
@@ -24,8 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
-  bool _hidePw = true;
-  bool _hideConfirm = true;
+
   bool _busy = false;
 
   @override
@@ -44,7 +44,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     setState(() => _busy = true);
-    // For demo: this does nothing (no persistence)
     await context.read<AuthProvider>().register(
       email: _email.text,
       password: _password.text,
@@ -60,46 +59,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
 
-    widget.onRegistered(); // go back to login
+    widget.onRegistered();
   }
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return Form(
       key: _formKey,
       autovalidateMode: _auto,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant),
-        ),
+      child: AuthCard(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextFormField(
-              controller: _email,
-              decoration: const InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-              validator: Validators.email(),
-              autofillHints: const [AutofillHints.email],
-            ),
+            EmailField(controller: _email),
             const SizedBox(height: 12),
 
-            TextFormField(
+            PasswordField(
               controller: _password,
-              decoration: InputDecoration(
-                labelText: 'Password (min 8)',
-                suffixIcon: IconButton(
-                  onPressed: () => setState(() => _hidePw = !_hidePw),
-                  icon: Icon(_hidePw ? Icons.visibility_off : Icons.visibility),
-                ),
-              ),
-              obscureText: _hidePw,
+              label: 'Password (min 8)',
               textInputAction: TextInputAction.next,
               validator: Validators.compose([
                 Validators.required('Password'),
@@ -108,18 +85,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 12),
 
-            TextFormField(
+            PasswordField(
               controller: _confirm,
-              decoration: InputDecoration(
-                labelText: 'Confirm password',
-                suffixIcon: IconButton(
-                  onPressed: () => setState(() => _hideConfirm = !_hideConfirm),
-                  icon: Icon(
-                    _hideConfirm ? Icons.visibility_off : Icons.visibility,
-                  ),
-                ),
-              ),
-              obscureText: _hideConfirm,
+              label: 'Confirm password',
               textInputAction: TextInputAction.done,
               validator: Validators.compose([
                 Validators.required('Confirm password'),
@@ -138,16 +106,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
             Align(
               alignment: Alignment.centerRight,
-              child: FilledButton.icon(
-                icon: _busy
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.person_add_alt_1),
-                label: Text(_busy ? 'Creating…' : 'Create account'),
-                onPressed: _busy ? null : _submit,
+              child: PrimaryBusyButton(
+                busy: _busy,
+                label: 'Create account',
+                busyLabel: 'Creating…',
+                icon: Icons.person_add_alt_1,
+                onPressed: _submit,
               ),
             ),
           ],
