@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:icemacha/utils/product_catalog_provider.dart';
 import 'package:icemacha/widgets/menu_section.dart';
-import 'package:icemacha/widgets/promo_carousel.dart';
 import 'package:icemacha/widgets/footer.dart';
 
 class MenuScreen extends StatelessWidget {
@@ -21,12 +19,10 @@ class MenuScreen extends StatelessWidget {
 
     final promos = catalog.promotions();
 
-    // Helper: group heading between Beverages and Food (match mockup)
+    // Helper to group Beverages / Food headings like your mockup
     String? lastGroup;
-
     List<Widget> buildSections() {
       final widgets = <Widget>[];
-
       for (final path in catalog.categoryOrder) {
         final group = path.split('/').first; // "Beverages" or "Food"
         if (group != lastGroup) {
@@ -44,7 +40,6 @@ class MenuScreen extends StatelessWidget {
             ),
           );
         }
-
         final products = catalog.byCategory(path);
         widgets.add(
           MenuSection(
@@ -59,7 +54,6 @@ class MenuScreen extends StatelessWidget {
           ),
         );
       }
-
       return widgets;
     }
 
@@ -68,7 +62,7 @@ class MenuScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Hero banner (optional)
+          // Hero banner (matches your other pages)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ClipRRect(
@@ -96,128 +90,21 @@ class MenuScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // All category sections
+          // All regular category sections
           ...buildSections(),
 
-          // Promotions (guard if empty)
-          if (promos.isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
-              child: Row(
-                children: [
-                  Text(
-                    'Promotions',
-                    style: tt.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: cs.primary,
-                    ),
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () => catalog.toggleExpanded('Promotions'),
-                    child: Text(
-                      catalog.isExpanded('Promotions') ? 'Close' : 'Show more',
-                    ),
-                  ),
-                ],
-              ),
+          // Promotions – now the SAME UX as other sections
+          if (promos.isNotEmpty)
+            MenuSection(
+              key: const ValueKey('Promotions'),
+              title: 'Promotions & Seasonal Offers',
+              products: promos,
+              expanded: catalog.isExpanded('Promotions'),
+              onToggleExpand: () => catalog.toggleExpanded('Promotions'),
+              onSelect: (_) {
+                // TODO: open item page
+              },
             ),
-
-            if (!catalog.isExpanded('Promotions'))
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: PromoCarousel(
-                  imagePaths: promos.map((p) => p.imagePath).toList(),
-                  height: 210,
-                  dotsBelow: true,
-                  interval: const Duration(seconds: 4),
-                  slideDuration: const Duration(milliseconds: 350),
-                  onTapSlide: (i) {
-                    // TODO: open item page promos[i]
-                  },
-                  overlayBuilder: (ctx, i) {
-                    final p = promos[i];
-                    return Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: cs.surface.withValues(alpha: 0.75),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text('LKR ${p.price}', style: tt.titleMedium),
-                        ),
-                        const Spacer(),
-                        FilledButton.icon(
-                          onPressed: () {
-                            // TODO: add to cart p
-                          },
-                          icon: const Icon(Icons.add_shopping_cart),
-                          label: const Text('Add'),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              )
-            else
-              // Expanded Promotions: simple 2-up grid inline
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: LayoutBuilder(
-                  builder: (context, c) {
-                    const gap = 12.0;
-                    const cols = 2;
-                    final cardWidth = (c.maxWidth - gap * (cols - 1)) / cols;
-                    return Wrap(
-                      spacing: gap,
-                      runSpacing: gap,
-                      children: promos.map((p) {
-                        return SizedBox(
-                          width: cardWidth,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: AspectRatio(
-                                  aspectRatio: 1,
-                                  child: Image.asset(
-                                    p.imagePath,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(p.title, style: tt.titleMedium),
-                              const SizedBox(height: 2),
-                              Text(
-                                'LKR ${p.price}',
-                                style: tt.bodyMedium?.copyWith(
-                                  color: cs.onSurfaceVariant,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: FilledButton.icon(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.add_shopping_cart),
-                                  label: const Text('Add'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-              ),
-          ],
 
           const SizedBox(height: 24),
           const Footer(),

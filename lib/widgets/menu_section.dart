@@ -28,8 +28,11 @@ class MenuSection extends StatelessWidget {
       builder: (context, c) {
         const gap = 12.0;
         const horizontalPad = 16.0;
-        final usable = c.maxWidth - (horizontalPad * 2) - gap; // 2-up width
+
+        final usable = c.maxWidth - (horizontalPad * 2) - gap;
         final cardWidth = usable / 2;
+        const contentHeight = 156.0;
+        final cardHeight = cardWidth + contentHeight;
 
         Widget header(String linkText) => Padding(
           padding: const EdgeInsets.fromLTRB(
@@ -54,13 +57,12 @@ class MenuSection extends StatelessWidget {
         );
 
         if (!expanded) {
-          // Horizontal scroller: 2 cards visible at once; scroll for more
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               header('Show more…'),
               SizedBox(
-                height: cardWidth + 118,
+                height: cardHeight,
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(
                     horizontal: horizontalPad,
@@ -73,8 +75,9 @@ class MenuSection extends StatelessWidget {
                     return ProductCard(
                       product: p,
                       width: cardWidth,
+                      height: cardHeight,
                       onTap: onSelect == null ? null : () => onSelect!(p),
-                      onAdd: null, // cart later
+                      onAdd: null,
                     );
                   },
                 ),
@@ -84,7 +87,7 @@ class MenuSection extends StatelessWidget {
           );
         }
 
-        // Expanded grid (inline)
+        // Expanded inline grid
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -98,6 +101,7 @@ class MenuSection extends StatelessWidget {
                   return ProductCard(
                     product: p,
                     width: cardWidth,
+                    height: cardHeight,
                     onTap: onSelect == null ? null : () => onSelect!(p),
                     onAdd: null,
                   );

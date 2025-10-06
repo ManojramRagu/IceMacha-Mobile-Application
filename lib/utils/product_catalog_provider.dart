@@ -3,16 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:icemacha/utils/product.dart';
 
-/// Loads assets/data/products.json (nested), flattens to Product list,
-/// exposes helpers + "Show more" inline expansion state.
 class ProductCatalogProvider extends ChangeNotifier {
   bool _isLoading = true;
   List<Product> _all = [];
 
-  // Track which sections are expanded ("Show more")
   final Set<String> _expanded = {};
 
-  // Preferred render order; empty sections are skipped automatically.
   static const List<String> _preferredOrder = [
     'Beverages/Hot',
     'Beverages/Cold',
@@ -37,7 +33,6 @@ class ProductCatalogProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   List<Product> get allProducts => _all;
 
-  /// Final order for Menu (skip empties).
   List<String> get categoryOrder =>
       _preferredOrder.where((p) => byCategory(p).isNotEmpty).toList();
 
@@ -107,7 +102,6 @@ class ProductCatalogProvider extends ChangeNotifier {
     } catch (e) {
       _all = [];
       if (kDebugMode) {
-        // ignore: avoid_print
         print('Product catalog load error: $e');
       }
     } finally {

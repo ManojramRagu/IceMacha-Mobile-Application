@@ -8,6 +8,7 @@ import 'package:icemacha/utils/auth_provider.dart';
 import 'package:icemacha/utils/product_catalog_provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -25,8 +26,8 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
-        home:
-            const AppShell(), // Profile tab still shows Login first (session-only)
+        themeMode: ThemeMode.system,
+        home: const AppShell(initialTabIndex: 3),
       ),
     );
   }
