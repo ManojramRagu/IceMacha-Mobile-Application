@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:icemacha/theme.dart';
-import 'package:icemacha/shell.dart';
+import 'package:icemacha/core/theme.dart';
+import 'package:icemacha/core/shell.dart';
 
 void main() {
   runApp(const MyApp());

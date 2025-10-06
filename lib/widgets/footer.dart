@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:icemacha/theme.dart' show AppColors;
+import 'package:icemacha/core/theme.dart' show AppColors;
 
 class Footer extends StatelessWidget {
   const Footer({super.key});
