@@ -1,8 +1,7 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:icemacha/core/theme.dart';
-import 'package:icemacha/core/shell.dart';
+import 'package:icemacha/screens/auth/auth_gate.dart';
 import 'package:icemacha/utils/auth_provider.dart';
 
 void main() {
@@ -20,7 +19,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
-        home: const AppShell(),
+        home: const AuthGate(),
       ),
     );
   }
