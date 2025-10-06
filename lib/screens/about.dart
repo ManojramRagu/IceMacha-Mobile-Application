@@ -39,7 +39,7 @@ class AboutScreen extends StatelessWidget {
           child: Text(
             'About IceMacha',
             textAlign: TextAlign.center,
-            style: tt.headlineSmall?.copyWith(
+            style: tt.headlineMedium?.copyWith(
               fontWeight: FontWeight.w700,
               color: cs.primary,
             ),

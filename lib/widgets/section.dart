@@ -6,11 +6,13 @@ class Section extends StatelessWidget {
     required this.title,
     required this.imagePath,
     required this.body,
+    this.imageHeight = 150,
   });
 
   final String title;
   final String imagePath;
   final String body;
+  final double imageHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +34,9 @@ class Section extends StatelessWidget {
         const SizedBox(height: 8),
         ClipRRect(
           borderRadius: BorderRadius.circular(14),
-          child: AspectRatio(
-            aspectRatio: 16 / 9,
+          child: SizedBox(
+            height: imageHeight,
+            width: double.infinity,
             child: Image.asset(
               imagePath,
               fit: BoxFit.cover,
