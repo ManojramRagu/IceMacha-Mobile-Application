@@ -7,6 +7,7 @@ import 'package:icemacha/utils/product_catalog_provider.dart';
 import 'package:icemacha/utils/cart_provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -22,11 +23,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: MaterialApp(
-        title: 'IceMacha',
+        debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         darkTheme: AppTheme.dark,
-        home: const AppShell(),
-        debugShowCheckedModeBanner: false,
+        themeMode: ThemeMode.system,
+        home: const AppShell(initialTabIndex: 3),
       ),
     );
   }

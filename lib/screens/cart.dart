@@ -30,7 +30,7 @@ class CartScreen extends StatelessWidget {
               Text('Your cart is empty', style: tt.titleMedium),
               const SizedBox(height: 8),
               Text(
-                'Browse the menu and add your favorites.',
+                'Browse menu.',
                 style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                 textAlign: TextAlign.center,
               ),
