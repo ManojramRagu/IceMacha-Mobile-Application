@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:icemacha/widgets/app_nav.dart';
 import 'package:icemacha/widgets/app_menu.dart';
-
 import 'package:icemacha/screens/home.dart';
-import 'package:icemacha/screens/menu.dart'; // MenuScreen
+import 'package:icemacha/screens/menu.dart';
 import 'package:icemacha/screens/cart.dart';
-import 'package:icemacha/screens/profile.dart'; // ProfileScreen
+import 'package:icemacha/screens/profile.dart';
 import 'package:icemacha/screens/about.dart';
 import 'package:icemacha/screens/contact.dart';
 
 import 'package:icemacha/utils/auth_provider.dart';
 
 class AppShell extends StatefulWidget {
-  /// Tabs: 0=Home, 1=Menu, 2=Cart, 3=Profile (Login/Register)
   final int initialTabIndex;
-  const AppShell({super.key, this.initialTabIndex = 3}); // default to Profile
+  const AppShell({super.key, this.initialTabIndex = 3});
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -24,8 +21,8 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  late int _tabIndex; // 0..3
-  late int _pageIndex; // 0..5 (About/Contact inside stack)
+  late int _tabIndex;
+  late int _pageIndex;
 
   AuthProvider? _auth;
 
@@ -52,10 +49,10 @@ class _AppShellState extends State<AppShell> {
     final authed = _auth!.isAuthenticated;
     setState(() {
       if (authed) {
-        _tabIndex = 0; // Home after login
+        _tabIndex = 0;
         _pageIndex = 0;
       } else {
-        _tabIndex = 3; // back to login/register
+        _tabIndex = 3;
         _pageIndex = 3;
       }
     });
@@ -111,7 +108,7 @@ class _AppShellState extends State<AppShell> {
   List<Widget> _buildPages() => [
     HomeScreen(onBuyNow: () => _goTab(1)),
     const MenuScreen(),
-    const CartScreen(),
+    CartScreen(onBrowseMenu: () => _goTab(1)),
     const ProfileScreen(),
     const AboutScreen(),
     const ContactScreen(),
@@ -122,13 +119,11 @@ class _AppShellState extends State<AppShell> {
     final authed = context.watch<AuthProvider>().isAuthenticated;
     final pages = _buildPages();
 
-    final onAuthScreens =
-        _pageIndex == 3 && !authed; // Profile tab & not logged in
+    final onAuthScreens = _pageIndex == 3 && !authed;
     final hideBottomSelection = _pageIndex >= 4 || onAuthScreens;
 
     return Scaffold(
       key: _scaffoldKey,
-      // Hide bars when on login/register
       appBar: onAuthScreens
           ? null
           : AppTopBar(onMenuTap: _openDrawer, onLogoTap: _goHome),

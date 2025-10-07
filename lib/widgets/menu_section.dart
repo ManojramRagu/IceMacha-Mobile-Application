@@ -8,6 +8,7 @@ class MenuSection extends StatelessWidget {
   final bool expanded;
   final VoidCallback? onToggleExpand;
   final void Function(Product)? onSelect;
+  final void Function(Product)? onAdd;
 
   const MenuSection({
     super.key,
@@ -16,6 +17,7 @@ class MenuSection extends StatelessWidget {
     required this.expanded,
     this.onToggleExpand,
     this.onSelect,
+    this.onAdd,
   });
 
   @override
@@ -77,16 +79,12 @@ class MenuSection extends StatelessWidget {
                   separatorBuilder: (_, __) => const SizedBox(width: gap),
                   itemBuilder: (_, i) {
                     final p = products[i];
-                    return InkWell(
-                      // Outer handler guarantees taps open the item page
+                    return ProductCard(
+                      product: p,
+                      width: cardWidth,
+                      height: cardHeight,
                       onTap: onSelect == null ? null : () => onSelect!(p),
-                      child: ProductCard(
-                        product: p,
-                        width: cardWidth,
-                        height: cardHeight,
-                        onTap: null, // avoid nested gesture conflicts
-                        onAdd: null,
-                      ),
+                      onAdd: onAdd == null ? null : () => onAdd!(p),
                     );
                   },
                 ),
@@ -107,15 +105,12 @@ class MenuSection extends StatelessWidget {
                 spacing: gap,
                 runSpacing: gap,
                 children: products.map((p) {
-                  return InkWell(
+                  return ProductCard(
+                    product: p,
+                    width: cardWidth,
+                    height: cardHeight,
                     onTap: onSelect == null ? null : () => onSelect!(p),
-                    child: ProductCard(
-                      product: p,
-                      width: cardWidth,
-                      height: cardHeight,
-                      onTap: null,
-                      onAdd: null,
-                    ),
+                    onAdd: onAdd == null ? null : () => onAdd!(p),
                   );
                 }).toList(),
               ),
