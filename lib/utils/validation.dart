@@ -99,17 +99,23 @@ class Validators {
 
   // Card Validations
 
-  // Card number Validation
+  // Card number Validation (Luhn OR whitelisted test numbers)
   static StrValidator cardNumberLuhn([String label = 'Card number']) {
+    // Add any additional developer test numbers here (digits only).
+    const testAllowList = {'1234123412341234'};
+
     return (v) {
       final digits = (v ?? '').replaceAll(RegExp(r'\s+'), '');
       if (digits.isEmpty) return '$label is required';
+
       // Accept common lengths (12–19)
       if (!RegExp(r'^\d{12,19}$').hasMatch(digits)) {
         return 'Enter a valid $label';
       }
-      if (!_luhnOk(digits)) return 'Enter a valid $label';
-      return null;
+
+      // Valid if passes Luhn OR matches an allowed test number
+      final ok = _luhnOk(digits) || testAllowList.contains(digits);
+      return ok ? null : 'Enter a valid $label';
     };
   }
 
