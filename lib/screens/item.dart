@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:icemacha/utils/product.dart';
+import 'package:icemacha/utils/cart_provider.dart';
 
 class ItemScreen extends StatelessWidget {
   final Product product;
@@ -16,13 +18,19 @@ class ItemScreen extends StatelessWidget {
         ? product.description
         : 'A delicious $title made fresh for you.';
 
+    void addToCart() {
+      context.read<CartProvider>().add(product);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text('$title added to cart')));
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       backgroundColor: cs.surface,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         children: [
-          // Image (safe fallback so page never blanks)
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: AspectRatio(
@@ -48,7 +56,6 @@ class ItemScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Title
           Text(
             title,
             style: tt.titleLarge?.copyWith(
@@ -58,11 +65,9 @@ class ItemScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Description
           Text(desc, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
           const SizedBox(height: 16),
 
-          // Price
           Text(
             'LKR ${product.price}',
             style: tt.titleLarge?.copyWith(
@@ -72,17 +77,12 @@ class ItemScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Button with FINITE constraints (no Row, no Spacer)
           Align(
             alignment: Alignment.centerRight,
             child: SizedBox(
-              height: 40, // gives the button concrete constraints
+              height: 40,
               child: FilledButton.icon(
-                onPressed: () {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text('Added $title')));
-                },
+                onPressed: addToCart,
                 icon: const Icon(Icons.add_shopping_cart),
                 label: const Text('Add to Cart'),
               ),
