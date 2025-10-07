@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:icemacha/utils/product.dart';
 import 'package:icemacha/utils/product_catalog_provider.dart';
+import 'package:icemacha/utils/cart_provider.dart';
 import 'package:icemacha/widgets/menu_section.dart';
 import 'package:icemacha/widgets/footer.dart';
 import 'package:icemacha/screens/item.dart';
@@ -13,6 +14,13 @@ class MenuScreen extends StatelessWidget {
     Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (_) => ItemScreen(product: p)));
+  }
+
+  void _addToCart(BuildContext context, Product p) {
+    context.read<CartProvider>().add(p);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text('${p.title} added to cart')));
   }
 
   @override
@@ -56,6 +64,7 @@ class MenuScreen extends StatelessWidget {
             expanded: catalog.isExpanded(path),
             onToggleExpand: () => catalog.toggleExpanded(path),
             onSelect: (p) => _openItem(context, p),
+            onAdd: (p) => _addToCart(context, p), // <-- NEW
           ),
         );
       }
@@ -103,6 +112,7 @@ class MenuScreen extends StatelessWidget {
               expanded: catalog.isExpanded('Promotions'),
               onToggleExpand: () => catalog.toggleExpanded('Promotions'),
               onSelect: (p) => _openItem(context, p),
+              onAdd: (p) => _addToCart(context, p),
             ),
 
           const SizedBox(height: 24),
