@@ -17,10 +17,34 @@ class MenuScreen extends StatelessWidget {
   }
 
   void _addToCart(BuildContext context, Product p) {
-    context.read<CartProvider>().add(p);
+    final cart = context.read<CartProvider>();
+    final before = cart.quantityFor(p.id);
+    if (before >= CartProvider.maxQty) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text('Only ${CartProvider.maxQty} allowed per customer'),
+          ),
+        );
+      return;
+    }
+    cart.add(p, qty: 1);
+    final after = cart.quantityFor(p.id);
+    final capped =
+        after == CartProvider.maxQty && before + 1 > CartProvider.maxQty;
+
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text('${p.title} added to cart')));
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            capped
+                ? 'Only ${CartProvider.maxQty} allowed per customer'
+                : '${p.title} added to cart',
+          ),
+        ),
+      );
   }
 
   @override
