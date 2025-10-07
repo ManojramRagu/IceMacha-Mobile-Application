@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:icemacha/widgets/form.dart';
 import 'package:icemacha/utils/validation.dart';
 import 'package:icemacha/utils/input_formatters.dart';
 import 'package:icemacha/utils/cart_provider.dart';
+import 'package:icemacha/screens/order_placed.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -26,7 +26,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _city = TextEditingController();
 
   // Payment
-  final _cardNumber = TextEditingController();
+  final _cardNumber =
+      TextEditingController(); // optional UI – still validated if filled
   final _expiry = TextEditingController(); // MM/YY
   final _cvv = TextEditingController();
 
@@ -56,15 +57,40 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _submitting = true);
-    await Future.delayed(const Duration(milliseconds: 500)); // fake processing
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Freeze lines BEFORE clearing the cart
+    final frozenLines = cart.items
+        .map(
+          (i) => OrderLineView(
+            title: i.product.title,
+            qty: i.qty,
+            unitPrice: i.product.price,
+          ),
+        )
+        .toList(growable: false);
+
+    final paymentMethod = _cardNumber.text.trim().isEmpty ? 'CASH' : 'CARD';
+
+    final receipt = OrderReceipt(
+      orderNo: DateTime.now().millisecondsSinceEpoch.toString().substring(
+        7,
+      ), // short-ish id
+      dateTime: DateTime.now(),
+      paymentMethod: paymentMethod,
+      city: _city.text.trim().isEmpty ? '—' : _city.text.trim(),
+      lines: frozenLines,
+      total: cart.subtotal,
+    );
+
     cart.clear();
 
     if (!mounted) return;
     setState(() => _submitting = false);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Order placed successfully!')));
-    Navigator.of(context).pop(); // close checkout
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => OrderPlacedScreen(receipt: receipt)),
+    );
   }
 
   @override
@@ -72,6 +98,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final cart = context.watch<CartProvider>();
+
+    // Build itemized summary at the top (title × qty + line price)
+    final summaryLines = cart.items
+        .map(
+          (i) => SummaryLine(
+            title: i.product.title,
+            qty: i.qty,
+            unitPrice: i.product.price,
+          ),
+        )
+        .toList();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -81,6 +118,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Heading
               Center(
                 child: Text(
                   'Checkout',
@@ -92,38 +130,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               const SizedBox(height: 12),
 
-              if (!cart.isEmpty)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: cs.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: cs.primary.withValues(alpha: 0.25),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.receipt_long),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Items: ${cart.totalQty}   •   Subtotal: LKR ${cart.subtotal}',
-                          style: tt.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              const SizedBox(height: 16),
+              // Itemized order summary
+              if (!cart.isEmpty) ...[
+                ItemsSummaryCard(lines: summaryLines, total: cart.subtotal),
+                const SizedBox(height: 16),
+              ],
 
+              // Form card
               AuthCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _SectionTitle('Contact Details'),
+                    // Contact
+                    const SectionTitle('Contact Details'),
                     TextFormField(
                       controller: _name,
                       decoration: const InputDecoration(labelText: 'Full name'),
@@ -151,7 +170,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
 
                     const SizedBox(height: 16),
-                    _SectionTitle('Delivery'),
+
+                    // Delivery
+                    const SectionTitle('Delivery'),
                     TextFormField(
                       controller: _address,
                       decoration: const InputDecoration(labelText: 'Address'),
@@ -167,7 +188,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
 
                     const SizedBox(height: 16),
-                    _SectionTitle('Payment'),
+
+                    // Payment
+                    const SectionTitle('Payment'),
                     TextFormField(
                       controller: _cardNumber,
                       decoration: const InputDecoration(
@@ -226,27 +249,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String text;
-  const _SectionTitle(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        text,
-        style: tt.titleMedium?.copyWith(
-          fontWeight: FontWeight.w700,
-          color: cs.primary,
         ),
       ),
     );
