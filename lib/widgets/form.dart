@@ -132,7 +132,7 @@ class PrimaryBusyButton extends StatelessWidget {
   }
 }
 
-// Quantity selector with – / + and a tap-to-pick wheel.
+/// Quantity selector with – / + and a tap-to-pick wheel.
 class QuantitySelector extends StatefulWidget {
   final int value;
   final int min;
@@ -143,7 +143,7 @@ class QuantitySelector extends StatefulWidget {
     super.key,
     required this.value,
     this.min = 1,
-    this.max = 10,
+    this.max = 20, // ← default 20
     required this.onChanged,
   });
 
@@ -205,6 +205,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
                   itemExtent: 44,
                   childDelegate: ListWheelChildBuilderDelegate(
                     builder: (_, index) {
+                      if (index < 0) return null;
                       final v = widget.min + index;
                       if (v > widget.max) return null;
                       return Center(child: Text('$v', style: tt.titleLarge));
