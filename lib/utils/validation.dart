@@ -105,8 +105,9 @@ class Validators {
       final digits = (v ?? '').replaceAll(RegExp(r'\s+'), '');
       if (digits.isEmpty) return '$label is required';
       // Accept common lengths (12–19)
-      if (!RegExp(r'^\d{12,19}$').hasMatch(digits))
+      if (!RegExp(r'^\d{12,19}$').hasMatch(digits)) {
         return 'Enter a valid $label';
+      }
       if (!_luhnOk(digits)) return 'Enter a valid $label';
       return null;
     };
