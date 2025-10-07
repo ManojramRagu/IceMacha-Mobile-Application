@@ -75,8 +75,9 @@ class Validators {
       if (t.isEmpty) return '${label ?? "This field"} is required';
       final n = int.tryParse(t);
       if (n == null) return '${label ?? "This field"} must be a number';
-      if (n < min || n > max)
+      if (n < min || n > max) {
         return '${label ?? "This field"} must be between $min and $max';
+      }
       return null;
     };
   }
@@ -151,20 +152,5 @@ class Validators {
       }
       return null;
     };
-  }
-
-  static bool _luhnOk(String digits) {
-    var sum = 0;
-    var even = false;
-    for (var i = digits.length - 1; i >= 0; i--) {
-      var d = digits.codeUnitAt(i) - 48;
-      if (even) {
-        d *= 2;
-        if (d > 9) d -= 9;
-      }
-      sum += d;
-      even = !even;
-    }
-    return sum % 10 == 0;
   }
 }
