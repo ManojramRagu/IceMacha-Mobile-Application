@@ -79,15 +79,12 @@ class MenuSection extends StatelessWidget {
                   separatorBuilder: (_, __) => const SizedBox(width: gap),
                   itemBuilder: (_, i) {
                     final p = products[i];
-                    return InkWell(
+                    return ProductCard(
+                      product: p,
+                      width: cardWidth,
+                      height: cardHeight,
                       onTap: onSelect == null ? null : () => onSelect!(p),
-                      child: ProductCard(
-                        product: p,
-                        width: cardWidth,
-                        height: cardHeight,
-                        onTap: null,
-                        onAdd: onAdd == null ? null : () => onAdd!(p),
-                      ),
+                      onAdd: onAdd == null ? null : () => onAdd!(p),
                     );
                   },
                 ),
@@ -108,15 +105,12 @@ class MenuSection extends StatelessWidget {
                 spacing: gap,
                 runSpacing: gap,
                 children: products.map((p) {
-                  return InkWell(
+                  return ProductCard(
+                    product: p,
+                    width: cardWidth,
+                    height: cardHeight,
                     onTap: onSelect == null ? null : () => onSelect!(p),
-                    child: ProductCard(
-                      product: p,
-                      width: cardWidth,
-                      height: cardHeight,
-                      onTap: null,
-                      onAdd: onAdd == null ? null : () => onAdd!(p), // <-- NEW
-                    ),
+                    onAdd: onAdd == null ? null : () => onAdd!(p),
                   );
                 }).toList(),
               ),

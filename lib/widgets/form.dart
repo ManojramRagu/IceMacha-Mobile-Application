@@ -143,7 +143,7 @@ class QuantitySelector extends StatefulWidget {
     super.key,
     required this.value,
     this.min = 1,
-    this.max = 20, // ← default 20
+    this.max = 20,
     required this.onChanged,
   });
 
@@ -158,6 +158,16 @@ class _QuantitySelectorState extends State<QuantitySelector> {
   void initState() {
     super.initState();
     _value = widget.value.clamp(widget.min, widget.max);
+  }
+
+  @override
+  void didUpdateWidget(covariant QuantitySelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If parent changes value/min/max, keep us in sync
+    final next = widget.value.clamp(widget.min, widget.max);
+    if (next != _value) _value = next;
+    if (_value > widget.max) _value = widget.max;
+    if (_value < widget.min) _value = widget.min;
   }
 
   void _set(int v) {
@@ -205,7 +215,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
                   itemExtent: 44,
                   childDelegate: ListWheelChildBuilderDelegate(
                     builder: (_, index) {
-                      if (index < 0) return null;
+                      if (index < 0) return null; // guard
                       final v = widget.min + index;
                       if (v > widget.max) return null;
                       return Center(child: Text('$v', style: tt.titleLarge));
