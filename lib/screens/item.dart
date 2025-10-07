@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:icemacha/utils/product.dart';
 import 'package:icemacha/utils/cart_provider.dart';
-import 'package:icemacha/widgets/form.dart';
+import 'package:icemacha/widgets/form.dart'; // QuantitySelector
 
 class ItemScreen extends StatefulWidget {
   final Product product;
@@ -20,11 +21,12 @@ class _ItemScreenState extends State<ItemScreen> {
     final t = Theme.of(context);
     final cs = t.colorScheme;
     final tt = t.textTheme;
-    final cart = context.watch<CartProvider>();
 
+    final cart = context.watch<CartProvider>();
     final p = widget.product;
+
     final inCart = cart.quantityFor(p.id);
-    final remaining = cart.remainingFor(p.id);
+    final remaining = cart.remainingFor(p.id); // 20 - inCart (>= 0)
 
     final title = p.title;
     final desc = p.description.trim().isNotEmpty
@@ -42,6 +44,7 @@ class _ItemScreenState extends State<ItemScreen> {
       }
       final want = _qty.clamp(1, remaining);
       final before = inCart;
+
       cart.add(p, qty: want);
       final after = cart.quantityFor(p.id);
       final capped =
@@ -60,8 +63,8 @@ class _ItemScreenState extends State<ItemScreen> {
         );
     }
 
-    // Keep local qty inside the latest remaining range
-    final maxSelectable = remaining.clamp(0, CartProvider.maxQty);
+    // ensure local qty never exceeds what's left
+    final maxSelectable = remaining.clamp(0, CartProvider.maxQty); // 0..20
     if (_qty > (maxSelectable == 0 ? 1 : maxSelectable)) {
       _qty = maxSelectable == 0 ? 1 : maxSelectable;
     }
@@ -72,7 +75,6 @@ class _ItemScreenState extends State<ItemScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         children: [
-          // Image
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: AspectRatio(
@@ -119,14 +121,14 @@ class _ItemScreenState extends State<ItemScreen> {
           ),
           const SizedBox(height: 12),
 
-          // Quantity + Add
+          // Row: selector + button
           Row(
             children: [
               if (remaining > 0)
                 QuantitySelector(
                   value: _qty,
                   min: 1,
-                  max: remaining,
+                  max: remaining, // cap by remaining so total never > 20
                   onChanged: (v) => setState(() => _qty = v),
                 )
               else
@@ -135,8 +137,12 @@ class _ItemScreenState extends State<ItemScreen> {
                   style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                 ),
               const Spacer(),
-              SizedBox(
-                height: 40,
+              // IMPORTANT: give the button a finite width inside a Row
+              ConstrainedBox(
+                constraints: const BoxConstraints.tightFor(
+                  height: 40,
+                  width: 180,
+                ),
                 child: FilledButton.icon(
                   onPressed: addToCart,
                   icon: const Icon(Icons.add_shopping_cart),
