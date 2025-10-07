@@ -61,6 +61,7 @@ class MenuSection extends StatelessWidget {
         );
 
         if (!expanded) {
+          // Horizontal scroller (2 visible at a time)
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -76,12 +77,16 @@ class MenuSection extends StatelessWidget {
                   separatorBuilder: (_, __) => const SizedBox(width: gap),
                   itemBuilder: (_, i) {
                     final p = products[i];
-                    return ProductCard(
-                      product: p,
-                      width: cardWidth,
-                      height: cardHeight,
+                    return InkWell(
+                      // Outer handler guarantees taps open the item page
                       onTap: onSelect == null ? null : () => onSelect!(p),
-                      onAdd: null,
+                      child: ProductCard(
+                        product: p,
+                        width: cardWidth,
+                        height: cardHeight,
+                        onTap: null, // avoid nested gesture conflicts
+                        onAdd: null,
+                      ),
                     );
                   },
                 ),
@@ -102,12 +107,15 @@ class MenuSection extends StatelessWidget {
                 spacing: gap,
                 runSpacing: gap,
                 children: products.map((p) {
-                  return ProductCard(
-                    product: p,
-                    width: cardWidth,
-                    height: cardHeight,
+                  return InkWell(
                     onTap: onSelect == null ? null : () => onSelect!(p),
-                    onAdd: null,
+                    child: ProductCard(
+                      product: p,
+                      width: cardWidth,
+                      height: cardHeight,
+                      onTap: null,
+                      onAdd: null,
+                    ),
                   );
                 }).toList(),
               ),
