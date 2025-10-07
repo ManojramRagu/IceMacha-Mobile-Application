@@ -267,3 +267,143 @@ class _QuantitySelectorState extends State<QuantitySelector> {
     );
   }
 }
+// Checkout page form widgets
+
+// Compact key–value row (e.g., Order # / Date / Payment).
+class KeyValueRow extends StatelessWidget {
+  final String label;
+  final String value;
+  const KeyValueRow({super.key, required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+    return Row(
+      children: [
+        Text(
+          label,
+          style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(width: 8),
+        Expanded(child: Text(value, style: tt.bodyMedium)),
+      ],
+    );
+  }
+}
+
+// Section title used across forms.
+class SectionTitle extends StatelessWidget {
+  final String text;
+  const SectionTitle(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        text,
+        style: tt.titleMedium?.copyWith(
+          fontWeight: FontWeight.w700,
+          color: cs.primary,
+        ),
+      ),
+    );
+  }
+}
+
+// Price chip/pill (“LKR 500”) used in summaries and receipts.
+class PricePill extends StatelessWidget {
+  final String text;
+  const PricePill(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        text,
+        style: tt.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}
+
+// Light-weight summary line model for UI lists.
+class SummaryLine {
+  final String title;
+  final int qty;
+  final int unitPrice;
+  const SummaryLine({
+    required this.title,
+    required this.qty,
+    required this.unitPrice,
+  });
+  int get lineTotal => qty * unitPrice;
+}
+
+// Itemized summary card (list of lines + total). Reused on Checkout & Receipt.
+class ItemsSummaryCard extends StatelessWidget {
+  final List<SummaryLine> lines;
+  final int total;
+  const ItemsSummaryCard({super.key, required this.lines, required this.total});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+        child: Column(
+          children: [
+            ...lines.map(
+              (l) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l.qty > 1 ? '${l.title} × ${l.qty}' : l.title,
+                        style: tt.bodyLarge?.copyWith(
+                          color: cs.onPrimaryContainer,
+                        ),
+                      ),
+                    ),
+                    PricePill('LKR ${l.lineTotal}'),
+                  ],
+                ),
+              ),
+            ),
+            const Divider(height: 24),
+            Row(
+              children: [
+                Text(
+                  'Total',
+                  style: tt.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: cs.onPrimaryContainer,
+                  ),
+                ),
+                const Spacer(),
+                PricePill('LKR $total'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:icemacha/screens/checkout.dart';
 import 'package:icemacha/utils/cart_provider.dart';
 import 'package:icemacha/widgets/form.dart';
 
@@ -154,10 +154,12 @@ class CartScreen extends StatelessWidget {
         // Checkout
         FilledButton.icon(
           onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('Proceeding to checkout (stub)'),
-                backgroundColor: cs.primary.withValues(alpha: 0.95),
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => Scaffold(
+                  appBar: AppBar(title: const Text('Checkout')),
+                  body: const CheckoutScreen(),
+                ),
               ),
             );
           },

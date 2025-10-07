@@ -75,8 +75,9 @@ class Validators {
       if (t.isEmpty) return '${label ?? "This field"} is required';
       final n = int.tryParse(t);
       if (n == null) return '${label ?? "This field"} must be a number';
-      if (n < min || n > max)
+      if (n < min || n > max) {
         return '${label ?? "This field"} must be between $min and $max';
+      }
       return null;
     };
   }
@@ -99,18 +100,21 @@ class Validators {
 
   // Card Validations
 
-  // Card number Validation
-  static StrValidator cardNumberLuhn([String label = 'Card number']) {
+  /// Card number: digits only, length 12–16
+  static StrValidator cardNumber([String label = 'Card number']) {
     return (v) {
       final digits = (v ?? '').replaceAll(RegExp(r'\s+'), '');
       if (digits.isEmpty) return '$label is required';
-      // Accept common lengths (12–19)
-      if (!RegExp(r'^\d{12,19}$').hasMatch(digits))
-        return 'Enter a valid $label';
-      if (!_luhnOk(digits)) return 'Enter a valid $label';
+      // Accept 12–16 digits
+      if (!RegExp(r'^\d{12,16}$').hasMatch(digits)) {
+        return 'Enter a valid $label (12–16 digits)';
+      }
       return null;
     };
   }
+
+  static StrValidator cardNumberLuhn([String label = 'Card number']) =>
+      cardNumber(label);
 
   // CVV
   static StrValidator cvv([String label = 'CVV']) {
@@ -148,20 +152,5 @@ class Validators {
       }
       return null;
     };
-  }
-
-  static bool _luhnOk(String digits) {
-    var sum = 0;
-    var even = false;
-    for (var i = digits.length - 1; i >= 0; i--) {
-      var d = digits.codeUnitAt(i) - 48;
-      if (even) {
-        d *= 2;
-        if (d > 9) d -= 9;
-      }
-      sum += d;
-      even = !even;
-    }
-    return sum % 10 == 0;
   }
 }
