@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:icemacha/utils/product.dart';
 import 'package:icemacha/utils/cart_provider.dart';
-import 'package:icemacha/widgets/form.dart'; // QuantitySelector
+import 'package:icemacha/widgets/form.dart';
 
 class ItemScreen extends StatefulWidget {
   final Product product;
@@ -25,8 +25,7 @@ class _ItemScreenState extends State<ItemScreen> {
     final cart = context.watch<CartProvider>();
     final p = widget.product;
 
-    final inCart = cart.quantityFor(p.id);
-    final remaining = cart.remainingFor(p.id); // 20 - inCart (>= 0)
+    final remaining = cart.remainingFor(p.id);
 
     final title = p.title;
     final desc = p.description.trim().isNotEmpty
@@ -34,28 +33,34 @@ class _ItemScreenState extends State<ItemScreen> {
         : 'A delicious $title made fresh for you.';
 
     void addToCart() {
-      if (remaining <= 0) {
+      final cartRW = context.read<CartProvider>();
+      final inCartNow = cartRW.quantityFor(p.id);
+      final remainingNow = CartProvider.maxQty - inCartNow;
+
+      if (remainingNow <= 0) {
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(
-            const SnackBar(content: Text('Only 20 allowed per customer')),
+            SnackBar(
+              content: Text('Only ${CartProvider.maxQty} allowed per customer'),
+            ),
           );
         return;
       }
-      final want = _qty.clamp(1, remaining);
-      final before = inCart;
 
-      cart.add(p, qty: want);
-      final after = cart.quantityFor(p.id);
-      final capped =
-          after == CartProvider.maxQty && before + want > CartProvider.maxQty;
+      final want = _qty.clamp(1, remainingNow);
+      cartRW.add(p, qty: want);
+
+      final reachedCap =
+          cartRW.quantityFor(p.id) == CartProvider.maxQty &&
+          inCartNow + want > CartProvider.maxQty;
 
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
             content: Text(
-              capped
+              reachedCap
                   ? 'Only ${CartProvider.maxQty} allowed per customer'
                   : 'Added $title (x$want)',
             ),
@@ -64,7 +69,7 @@ class _ItemScreenState extends State<ItemScreen> {
     }
 
     // ensure local qty never exceeds what's left
-    final maxSelectable = remaining.clamp(0, CartProvider.maxQty); // 0..20
+    final maxSelectable = remaining.clamp(0, CartProvider.maxQty);
     if (_qty > (maxSelectable == 0 ? 1 : maxSelectable)) {
       _qty = maxSelectable == 0 ? 1 : maxSelectable;
     }
