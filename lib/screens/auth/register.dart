@@ -25,6 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+  final _address = TextEditingController();
 
   bool _busy = false;
 
@@ -33,6 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _email.dispose();
     _password.dispose();
     _confirm.dispose();
+    _address.dispose();
     super.dispose();
   }
 
@@ -47,6 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     await context.read<AuthProvider>().register(
       email: _email.text,
       password: _password.text,
+      address: _address.text,
     );
     setState(() => _busy = false);
     if (!mounted) return;
@@ -88,11 +91,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
             PasswordField(
               controller: _confirm,
               label: 'Confirm password',
-              textInputAction: TextInputAction.done,
+              textInputAction: TextInputAction.next,
               validator: Validators.compose([
                 Validators.required('Confirm password'),
                 Validators.match(_password, message: 'Passwords do not match'),
               ]),
+            ),
+            const SizedBox(height: 12),
+
+            TextFormField(
+              controller: _address,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: 'Home address (optional)',
+                hintText: 'e.g., 23 Flower Rd, Colombo 7',
+              ),
             ),
             const SizedBox(height: 12),
 
