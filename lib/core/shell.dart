@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:icemacha/widgets/app_nav.dart';
-import 'package:icemacha/widgets/app_menu.dart';
 import 'package:icemacha/screens/home.dart';
 import 'package:icemacha/screens/menu.dart';
 import 'package:icemacha/screens/cart.dart';
@@ -95,16 +94,6 @@ class _AppShellState extends State<AppShell> {
     });
   }
 
-  void _openAbout() => setState(() {
-    _pageIndex = 4;
-    _scaffoldKey.currentState?.closeDrawer();
-  });
-
-  void _openContact() => setState(() {
-    _pageIndex = 5;
-    _scaffoldKey.currentState?.closeDrawer();
-  });
-
   List<Widget> _buildPages() => [
     HomeScreen(onBuyNow: () => _goTab(1)),
     const MenuScreen(),
@@ -127,9 +116,6 @@ class _AppShellState extends State<AppShell> {
       appBar: onAuthScreens
           ? null
           : AppTopBar(onMenuTap: _openDrawer, onLogoTap: _goHome),
-      drawer: onAuthScreens
-          ? null
-          : AppDrawer(onAbout: _openAbout, onContact: _openContact),
       body: IndexedStack(index: _pageIndex, children: pages),
       bottomNavigationBar: onAuthScreens
           ? null
