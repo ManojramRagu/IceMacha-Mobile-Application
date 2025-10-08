@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:icemacha/widgets/form.dart';
+import 'package:icemacha/screens/menu.dart';
 
 class OrderLineView {
   final String title;
@@ -62,6 +63,7 @@ class OrderPlacedScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 KeyValueRow(label: 'Payment', value: receipt.paymentMethod),
                 const SizedBox(height: 8),
+                // Will display "Home" or the entered address string
                 KeyValueRow(label: 'Delivery', value: receipt.city),
               ],
             ),
@@ -72,8 +74,12 @@ class OrderPlacedScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           FilledButton.icon(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.shopping_bag_outlined),
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const MenuScreen()),
+              );
+            },
+            icon: const Icon(Icons.restaurant_menu),
             label: const Text('Continue shopping'),
           ),
         ],
