@@ -6,6 +6,10 @@ import 'package:icemacha/utils/input_formatters.dart';
 import 'package:icemacha/utils/cart_provider.dart';
 import 'package:icemacha/screens/order_placed.dart';
 
+enum PaymentMethod { cash, card }
+
+enum DeliveryOption { home, address }
+
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -21,15 +25,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _email = TextEditingController();
   final _phone = TextEditingController();
 
-  // Delivery
   final _address = TextEditingController();
   final _city = TextEditingController();
 
-  // Payment
-  final _cardNumber =
-      TextEditingController(); // optional UI – still validated if filled
-  final _expiry = TextEditingController(); // MM/YY
+  final _cardNumber = TextEditingController();
+  final _expiry = TextEditingController();
   final _cvv = TextEditingController();
+
+  PaymentMethod _pay = PaymentMethod.cash;
+  DeliveryOption _delivery = DeliveryOption.home;
 
   bool _submitting = false;
 
@@ -54,6 +58,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ).showSnackBar(const SnackBar(content: Text('Your cart is empty')));
       return;
     }
+    // Validate visible fields only (hidden ones aren't in the tree)
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _submitting = true);
@@ -70,15 +75,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         )
         .toList(growable: false);
 
-    final paymentMethod = _cardNumber.text.trim().isEmpty ? 'CASH' : 'CARD';
+    // Payment method from radio
+    final paymentMethod = _pay == PaymentMethod.card ? 'CARD' : 'CASH';
+
+    // Delivery label for success page ("Home" or entered address)
+    String deliveryLabel;
+    if (_delivery == DeliveryOption.home) {
+      deliveryLabel = 'Home';
+    } else {
+      // Combine address + city if provided
+      final addr = _address.text.trim();
+      final city = _city.text.trim();
+      deliveryLabel = city.isEmpty ? addr : '$addr, $city';
+    }
 
     final receipt = OrderReceipt(
-      orderNo: DateTime.now().millisecondsSinceEpoch.toString().substring(
-        7,
-      ), // short-ish id
+      orderNo: DateTime.now().millisecondsSinceEpoch.toString().substring(7),
       dateTime: DateTime.now(),
       paymentMethod: paymentMethod,
-      city: _city.text.trim().isEmpty ? '—' : _city.text.trim(),
+      // Reusing `city` field to carry the delivery label shown as "Delivery"
+      city: deliveryLabel,
       lines: frozenLines,
       total: cart.subtotal,
     );
@@ -99,7 +115,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final tt = Theme.of(context).textTheme;
     final cart = context.watch<CartProvider>();
 
-    // Build itemized summary at the top (title × qty + line price)
+    // Build itemized summary at the top
     final summaryLines = cart.items
         .map(
           (i) => SummaryLine(
@@ -173,65 +189,109 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                     // Delivery
                     const SectionTitle('Delivery'),
-                    TextFormField(
-                      controller: _address,
-                      decoration: const InputDecoration(labelText: 'Address'),
-                      textInputAction: TextInputAction.next,
-                      validator: Validators.required('Address'),
+                    DropdownButtonFormField<DeliveryOption>(
+                      value: _delivery,
+                      decoration: const InputDecoration(
+                        labelText: 'Deliver to',
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: DeliveryOption.home,
+                          child: Text('Home'),
+                        ),
+                        DropdownMenuItem(
+                          value: DeliveryOption.address,
+                          child: Text('Address'),
+                        ),
+                      ],
+                      onChanged: (v) =>
+                          setState(() => _delivery = v ?? DeliveryOption.home),
                     ),
-                    const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _city,
-                      decoration: const InputDecoration(labelText: 'City'),
-                      textInputAction: TextInputAction.next,
-                      validator: Validators.required('City'),
-                    ),
+                    // Address + City only when Address is selected
+                    if (_delivery == DeliveryOption.address) ...[
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _address,
+                        decoration: const InputDecoration(labelText: 'Address'),
+                        textInputAction: TextInputAction.next,
+                        validator: Validators.required('Address'),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _city,
+                        decoration: const InputDecoration(labelText: 'City'),
+                        textInputAction: TextInputAction.next,
+                        validator: Validators.required('City'),
+                      ),
+                    ],
 
                     const SizedBox(height: 16),
 
                     // Payment
                     const SectionTitle('Payment'),
-                    TextFormField(
-                      controller: _cardNumber,
-                      decoration: const InputDecoration(
-                        labelText: 'Card number',
+                    RadioListTile<PaymentMethod>(
+                      contentPadding: EdgeInsets.zero,
+                      value: PaymentMethod.cash,
+                      groupValue: _pay,
+                      title: const Text('Cash on Delivery'),
+                      onChanged: (v) => setState(() => _pay = v!),
+                    ),
+                    RadioListTile<PaymentMethod>(
+                      contentPadding: EdgeInsets.zero,
+                      value: PaymentMethod.card,
+                      groupValue: _pay,
+                      title: const Text('Card'),
+                      onChanged: (v) => setState(() => _pay = v!),
+                    ),
+
+                    // Card fields only when Card selected
+                    if (_pay == PaymentMethod.card) ...[
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _cardNumber,
+                        decoration: const InputDecoration(
+                          labelText: 'Card number',
+                        ),
+                        keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.next,
+                        inputFormatters: Formatters.cardNumberGrouped(),
+                        // Keep your existing validator style; enforced only when visible
+                        validator: Validators.cardNumberLuhn('Card number'),
                       ),
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.next,
-                      inputFormatters: Formatters.cardNumberGrouped(),
-                      validator: Validators.cardNumberLuhn('Card number'),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _expiry,
-                            decoration: const InputDecoration(
-                              labelText: 'Expiry (MM/YY)',
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _expiry,
+                              decoration: const InputDecoration(
+                                labelText: 'Expiry (MM/YY)',
+                              ),
+                              keyboardType: TextInputType.datetime,
+                              textInputAction: TextInputAction.next,
+                              inputFormatters: Formatters.expiryMmYy(),
+                              validator: Validators.expiryMmYy('Expiry'),
                             ),
-                            keyboardType: TextInputType.datetime,
-                            textInputAction: TextInputAction.next,
-                            inputFormatters: Formatters.expiryMmYy(),
-                            validator: Validators.expiryMmYy('Expiry'),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _cvv,
-                            decoration: const InputDecoration(labelText: 'CVV'),
-                            keyboardType: TextInputType.number,
-                            textInputAction: TextInputAction.done,
-                            inputFormatters: [
-                              Formatters.digitsOnly,
-                              Formatters.maxLength(3),
-                            ],
-                            validator: Validators.cvv('CVV'),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _cvv,
+                              decoration: const InputDecoration(
+                                labelText: 'CVV',
+                              ),
+                              keyboardType: TextInputType.number,
+                              textInputAction: TextInputAction.done,
+                              inputFormatters: [
+                                Formatters.digitsOnly,
+                                Formatters.maxLength(3),
+                              ],
+                              validator: Validators.cvv('CVV'),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
 
                     const SizedBox(height: 20),
                     Align(

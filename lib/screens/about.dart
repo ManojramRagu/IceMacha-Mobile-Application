@@ -16,7 +16,7 @@ class AboutScreen extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: const AppTopBar(), // shows back arrow when pushed
+      appBar: const AppTopBar(),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
