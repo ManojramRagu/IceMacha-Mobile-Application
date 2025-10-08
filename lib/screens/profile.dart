@@ -7,6 +7,9 @@ import 'package:icemacha/screens/auth/register.dart';
 import 'package:icemacha/screens/auth/user_profile.dart';
 import 'package:icemacha/screens/about.dart';
 import 'package:icemacha/screens/contact.dart';
+// ========== NEW ============
+import 'package:icemacha/screens/auth/edit_profile.dart';
+//========== END OF NEW ============
 
 enum _Mode { login, register }
 
@@ -22,103 +25,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _goLogin() => setState(() => _mode = _Mode.login);
   void _goRegister() => setState(() => _mode = _Mode.register);
-
-  Future<void> _showEditProfileSheet(BuildContext context) async {
-    final auth = context.read<AuthProvider>();
-    final nameCtrl = TextEditingController(text: auth.name);
-    final passCtrl = TextEditingController();
-    final confirmCtrl = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      showDragHandle: true,
-      builder: (ctx) {
-        final insets = MediaQuery.of(ctx).viewInsets;
-        return Padding(
-          padding: EdgeInsets.only(bottom: insets.bottom),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-            child: Form(
-              key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Edit Profile',
-                    style: Theme.of(ctx).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: nameCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Display name',
-                    ),
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Enter a name' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  PasswordField(
-                    controller: passCtrl,
-                    label: 'New password (optional)',
-                    textInputAction: TextInputAction.next,
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return null;
-                      if (v.length < 6) return 'Min 6 characters';
-                      return null;
-                    },
-                  ),
-                  PasswordField(
-                    controller: confirmCtrl,
-                    label: 'Confirm new password',
-                    textInputAction: TextInputAction.done,
-                    validator: (v) {
-                      if (passCtrl.text.isEmpty && (v == null || v.isEmpty)) {
-                        return null;
-                      }
-                      if (v != passCtrl.text) return 'Passwords do not match';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: FilledButton.icon(
-                      icon: const Icon(Icons.check),
-                      label: const Text('Update'),
-                      onPressed: () {
-                        if (!(formKey.currentState?.validate() ?? false))
-                          return;
-                        context.read<AuthProvider>().updateProfile(
-                          name: nameCtrl.text,
-                          password: passCtrl.text.isEmpty
-                              ? null
-                              : passCtrl.text,
-                        );
-                        Navigator.of(ctx).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Profile updated'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-
-    nameCtrl.dispose();
-    passCtrl.dispose();
-    confirmCtrl.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           if (auth.isAuthenticated) ...[
             const SizedBox(height: 24),
 
+            // ========== NEW ============
             Text('Account', style: tt.titleMedium),
             const SizedBox(height: 8),
             Card(
@@ -162,17 +69,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ListTile(
                     leading: const Icon(Icons.edit),
                     title: const Text('Edit Profile'),
-                    subtitle: const Text(
-                      'Change your display name or password',
-                    ),
+                    subtitle: const Text('Change your name or password'),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => _showEditProfileSheet(context),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const EditProfileScreen(),
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
 
+            //========== END OF NEW ============
             Text('Information', style: tt.titleMedium),
             const SizedBox(height: 8),
             Card(
