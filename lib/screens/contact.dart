@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:icemacha/widgets/footer.dart';
 import 'package:icemacha/utils/validation.dart';
 
 class ContactScreen extends StatefulWidget {
@@ -135,7 +134,6 @@ class _ContactScreenState extends State<ContactScreen> {
           ),
 
           const SizedBox(height: 24),
-          const Footer(),
         ],
       ),
     );

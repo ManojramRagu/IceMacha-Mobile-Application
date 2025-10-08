@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:icemacha/widgets/footer.dart';
 import 'package:icemacha/widgets/section.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -81,7 +80,6 @@ class AboutScreen extends StatelessWidget {
         ),
 
         const SizedBox(height: 24),
-        const Footer(),
       ],
     );
   }

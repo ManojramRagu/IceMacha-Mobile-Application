@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:icemacha/widgets/promo_carousel.dart';
-import 'package:icemacha/widgets/footer.dart';
 
-/// Body-only Home screen — AppBar & BottomNav come from shell.dart.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, this.onBuyNow});
 
@@ -90,9 +88,6 @@ class HomeScreen extends StatelessWidget {
         ),
 
         const SizedBox(height: 28),
-
-        // Footer
-        const Footer(),
       ],
     );
   }
