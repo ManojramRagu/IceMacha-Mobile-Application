@@ -45,8 +45,6 @@ class AuthProvider extends ChangeNotifier {
   void updateProfile({String? name, String? password}) {
     final n = (name ?? '').trim();
     if (n.isNotEmpty) _displayName = n;
-
-    final p = (password ?? '').trim();
-    if (p.isNotEmpty) notifyListeners();
+    notifyListeners();
   }
 }

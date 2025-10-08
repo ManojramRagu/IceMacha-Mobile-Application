@@ -5,11 +5,9 @@ import 'package:icemacha/widgets/form.dart';
 import 'package:icemacha/screens/auth/login.dart';
 import 'package:icemacha/screens/auth/register.dart';
 import 'package:icemacha/screens/auth/user_profile.dart';
+import 'package:icemacha/screens/auth/edit_profile.dart';
 import 'package:icemacha/screens/about.dart';
 import 'package:icemacha/screens/contact.dart';
-// ========== NEW ============
-import 'package:icemacha/screens/auth/edit_profile.dart';
-//========== END OF NEW ============
 
 enum _Mode { login, register }
 
@@ -35,7 +33,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final Widget body = auth.isAuthenticated
         ? const UserProfile()
         : (_mode == _Mode.login
-              ? LoginScreen(onRegisterTap: _goRegister, onLoggedIn: () {})
+              ? LoginScreen(
+                  onRegisterTap: _goRegister,
+                  onLoggedIn: () {
+                    if (!mounted) return;
+                    setState(() {});
+                  },
+                )
               : RegisterScreen(onLoginTap: _goLogin, onRegistered: _goLogin));
 
     return SingleChildScrollView(
@@ -53,12 +57,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          PageBodyNarrow(child: body),
 
+          PageBodyNarrow(child: body),
           if (auth.isAuthenticated) ...[
             const SizedBox(height: 24),
-
-            // ========== NEW ============
             Text('Account', style: tt.titleMedium),
             const SizedBox(height: 8),
             Card(
@@ -82,8 +84,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            //========== END OF NEW ============
             Text('Information', style: tt.titleMedium),
             const SizedBox(height: 8),
             Card(

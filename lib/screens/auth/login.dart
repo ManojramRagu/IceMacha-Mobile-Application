@@ -63,7 +63,9 @@ class _LoginScreenState extends State<LoginScreen> {
     widget.onLoggedIn();
 
     final routeName = ModalRoute.of(context)?.settings.name;
-    if (routeName == '/login' || !Navigator.of(context).canPop()) {
+    final isStandalone =
+        routeName == '/login' || !Navigator.of(context).canPop();
+    if (isStandalone) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const AppShell(initialTabIndex: 0)),
         (r) => false,

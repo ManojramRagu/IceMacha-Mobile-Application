@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:icemacha/utils/auth_provider.dart';
+import 'package:icemacha/widgets/form.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -18,11 +19,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     final ap = context.read<AuthProvider>();
-    // ========== NEW ============
     _name = TextEditingController(
       text: ap.displayName == 'Guest' ? '' : ap.displayName,
     );
-    //========== END OF NEW ============
   }
 
   @override
@@ -50,6 +49,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         behavior: SnackBarBehavior.floating,
       ),
     );
+
     Navigator.of(context).pop();
   }
 
@@ -59,41 +59,60 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       appBar: AppBar(title: const Text('Edit Profile')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _name,
-                decoration: const InputDecoration(labelText: 'Display name'),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Enter a name' : null,
+        child: PageBodyNarrow(
+          child: Form(
+            key: _formKey,
+            child: AuthCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    controller: _name,
+                    decoration: const InputDecoration(
+                      labelText: 'Display name',
+                    ),
+                    validator: (v) =>
+                        (v == null || v.trim().isEmpty) ? 'Enter a name' : null,
+                  ),
+                  const SizedBox(height: 12),
+                  PasswordField(
+                    controller: _pass,
+                    label: 'New password (optional)',
+                    textInputAction: TextInputAction.next,
+                    validator: (v) {
+                      final s = (v ?? '').trim();
+                      if (s.isEmpty) return null;
+                      if (s.length < 6) return 'Min 6 characters';
+                      return null;
+                    },
+                  ),
+                  PasswordField(
+                    controller: _confirm,
+                    label: 'Confirm new password',
+                    textInputAction: TextInputAction.done,
+                    validator: (v) {
+                      final s = (v ?? '').trim();
+                      if (_pass.text.trim().isEmpty && s.isEmpty) return null;
+                      if (s != _pass.text.trim()) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: PrimaryBusyButton(
+                      busy: false,
+                      label: 'Update',
+                      busyLabel: 'Updating…',
+                      icon: Icons.check_rounded,
+                      onPressed: _update,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _pass,
-                decoration: const InputDecoration(
-                  labelText: 'New password (optional)',
-                ),
-                obscureText: true,
-              ),
-              TextFormField(
-                controller: _confirm,
-                decoration: const InputDecoration(
-                  labelText: 'Confirm new password',
-                ),
-                obscureText: true,
-                validator: (v) {
-                  if (_pass.text.isEmpty && (v == null || v.isEmpty))
-                    return null;
-                  if (_pass.text.length < 6) return 'Min 6 characters';
-                  if (v != _pass.text) return 'Passwords do not match';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              FilledButton(onPressed: _update, child: const Text('Update')),
-            ],
+            ),
           ),
         ),
       ),

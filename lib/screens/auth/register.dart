@@ -25,10 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
-
-  // ========== NEW ============
   final _address = TextEditingController();
-  //========== END OF NEW ============
 
   bool _busy = false;
 
@@ -37,9 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _email.dispose();
     _password.dispose();
     _confirm.dispose();
-    // ========== NEW ============
     _address.dispose();
-    //========== END OF NEW ============
     super.dispose();
   }
 
@@ -54,9 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     await context.read<AuthProvider>().register(
       email: _email.text,
       password: _password.text,
-      // ========== NEW ============
       address: _address.text,
-      //========== END OF NEW ============
     );
     setState(() => _busy = false);
     if (!mounted) return;
@@ -83,7 +76,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           children: [
             EmailField(controller: _email),
             const SizedBox(height: 12),
-
             PasswordField(
               controller: _password,
               label: 'Password (min 8)',
@@ -94,7 +86,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ]),
             ),
             const SizedBox(height: 12),
-
             PasswordField(
               controller: _confirm,
               label: 'Confirm password',
@@ -105,8 +96,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ]),
             ),
             const SizedBox(height: 12),
-
-            // ========== NEW ============
             TextFormField(
               controller: _address,
               maxLines: 2,
@@ -116,8 +105,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             const SizedBox(height: 12),
-
-            //========== END OF NEW ============
             Align(
               alignment: Alignment.centerLeft,
               child: TextButton(
@@ -125,7 +112,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: const Text('Already have an account? Login'),
               ),
             ),
-
             Align(
               alignment: Alignment.centerRight,
               child: PrimaryBusyButton(
