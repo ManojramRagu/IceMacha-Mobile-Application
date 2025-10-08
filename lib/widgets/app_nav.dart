@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 
-// TOP NAVIGATION BAR
+// TOP NAVIGATION BAR (no hamburger)
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
-  const AppTopBar({super.key, this.onLogoTap, this.onMenuTap});
+  const AppTopBar({super.key, this.onLogoTap});
 
   final VoidCallback? onLogoTap;
-
-  final VoidCallback? onMenuTap;
 
   static const _logo = 'assets/img/logo.webp';
 
@@ -15,11 +13,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     final cs = Theme.of(context).colorScheme;
 
     return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.menu),
-        tooltip: 'Menu',
-        onPressed: onMenuTap,
-      ),
+      // Back arrow appears automatically on pushed routes (default behavior).
       centerTitle: true,
       title: GestureDetector(
         onTap: onLogoTap,
@@ -32,8 +26,9 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
             child: Image.asset(
               _logo,
               fit: BoxFit.contain,
+              // Fallback icon uses onSurface so it’s readable in light/dark.
               errorBuilder: (_, __, ___) =>
-                  Icon(Icons.local_cafe, color: cs.onPrimary),
+                  Icon(Icons.local_cafe, color: cs.onSurface),
             ),
           ),
         ),
