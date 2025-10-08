@@ -36,7 +36,12 @@ class UserProfile extends StatelessWidget {
           FilledButton.icon(
             icon: const Icon(Icons.logout),
             label: const Text('Log out'),
-            onPressed: () => context.read<AuthProvider>().logout(),
+            onPressed: () {
+              context.read<AuthProvider>().logout();
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/login', (r) => false);
+            },
           ),
         ],
       ),
