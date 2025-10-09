@@ -45,6 +45,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 )
               : RegisterScreen(onLoginTap: _goLogin, onRegistered: _goLogin));
 
+    if (!auth.isAuthenticated) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          const pad = EdgeInsets.fromLTRB(16, 20, 16, 24);
+          final double targetH = (constraints.maxHeight - pad.vertical)
+              .clamp(0.0, double.infinity)
+              .toDouble();
+
+          return SingleChildScrollView(
+            padding: pad,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: targetH.isFinite ? targetH : 0,
+                maxHeight: targetH.isFinite ? targetH : double.infinity,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Text(
+                      'Your Account',
+                      style: tt.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: cs.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  PageBodyNarrow(child: body),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     Widget accountCard() => Card(
       elevation: 0,
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
