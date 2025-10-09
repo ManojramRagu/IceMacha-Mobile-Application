@@ -61,9 +61,9 @@ class MenuScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
               child: Text(
                 group,
-                style: tt.titleLarge?.copyWith(
+                style: tt.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: cs.primary,
+                  color: cs.tertiary,
                 ),
               ),
             ),
@@ -78,7 +78,7 @@ class MenuScreen extends StatelessWidget {
             expanded: catalog.isExpanded(path),
             onToggleExpand: () => catalog.toggleExpanded(path),
             onSelect: (p) => _openItem(context, p),
-            onAdd: (p) => _addToCart(context, p), // <-- NEW
+            onAdd: (p) => _addToCart(context, p),
           ),
         );
       }
@@ -95,7 +95,7 @@ class MenuScreen extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(14),
               child: Image.asset(
-                'assets/img/hero/hero.webp',
+                'assets/img/hero/menu.webp',
                 fit: BoxFit.cover,
               ),
             ),
@@ -118,16 +118,27 @@ class MenuScreen extends StatelessWidget {
 
           ...buildSections(),
 
-          if (promos.isNotEmpty)
+          if (promos.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+              child: Text(
+                'Promotions',
+                style: tt.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: cs.tertiary,
+                ),
+              ),
+            ),
             MenuSection(
               key: const ValueKey('Promotions'),
-              title: 'Promotions & Seasonal Offers',
+              title: 'Limited',
               products: promos,
               expanded: catalog.isExpanded('Promotions'),
               onToggleExpand: () => catalog.toggleExpanded('Promotions'),
               onSelect: (p) => _openItem(context, p),
               onAdd: (p) => _addToCart(context, p),
             ),
+          ],
 
           const SizedBox(height: 24),
         ],

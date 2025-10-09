@@ -31,8 +31,13 @@ class MenuSection extends StatelessWidget {
         const gap = 12.0;
         const horizontalPad = 16.0;
 
-        final usableCollapsed = c.maxWidth - (horizontalPad * 2) - gap;
-        final cardWidthCollapsed = usableCollapsed / 2;
+        // Collapsed sizing – 5 cards in landscape, 2 in portrait.
+        final isLandscape =
+            MediaQuery.of(context).orientation == Orientation.landscape;
+        final visibleCollapsed = isLandscape ? 5 : 2;
+        final usableCollapsed =
+            c.maxWidth - (horizontalPad * 2) - gap * (visibleCollapsed - 1);
+        final cardWidthCollapsed = usableCollapsed / visibleCollapsed;
         const contentHeight = 156.0;
         final cardHeightCollapsed = cardWidthCollapsed + contentHeight;
 
@@ -106,7 +111,6 @@ class MenuSection extends StatelessWidget {
         final cardWidthExpanded = usableExpanded / cols;
         final cardHeightExpanded = cardWidthExpanded + contentHeight;
 
-        // Expanded inline grid
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
