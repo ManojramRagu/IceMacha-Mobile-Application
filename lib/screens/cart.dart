@@ -163,7 +163,7 @@ class CartScreen extends StatelessWidget {
               ),
             );
           },
-          icon: const Icon(Icons.lock),
+          icon: const Icon(Icons.payments),
           label: const Text('Checkout'),
         ),
       ],

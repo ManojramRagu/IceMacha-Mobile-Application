@@ -8,6 +8,7 @@ import 'package:icemacha/screens/auth/user_profile.dart';
 import 'package:icemacha/screens/auth/edit_profile.dart';
 import 'package:icemacha/screens/about.dart';
 import 'package:icemacha/screens/contact.dart';
+import 'package:icemacha/utils/theme_provider.dart';
 
 enum _Mode { login, register }
 
@@ -84,6 +85,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 16),
+
+            Text('Appearance', style: tt.titleMedium),
+            const SizedBox(height: 8),
+            Card(
+              elevation: 0,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              child: Consumer<ThemeProvider>(
+                builder: (context, theme, _) {
+                  final systemIsDark =
+                      Theme.of(context).brightness == Brightness.dark;
+                  final subtitle = theme.mode == ThemeMode.system
+                      ? 'Follows device (${systemIsDark ? 'dark' : 'light'})'
+                      : (theme.isDark ? 'Dark' : 'Light');
+                  return SwitchListTile(
+                    secondary: const Icon(Icons.dark_mode_outlined),
+                    title: const Text('Dark mode'),
+                    subtitle: Text(subtitle),
+                    value: theme.isDark,
+                    onChanged: (_) => theme.toggle(),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+
             Text('Information', style: tt.titleMedium),
             const SizedBox(height: 8),
             Card(
