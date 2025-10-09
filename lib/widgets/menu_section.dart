@@ -31,10 +31,10 @@ class MenuSection extends StatelessWidget {
         const gap = 12.0;
         const horizontalPad = 16.0;
 
-        final usable = c.maxWidth - (horizontalPad * 2) - gap;
-        final cardWidth = usable / 2;
+        final usableCollapsed = c.maxWidth - (horizontalPad * 2) - gap;
+        final cardWidthCollapsed = usableCollapsed / 2;
         const contentHeight = 156.0;
-        final cardHeight = cardWidth + contentHeight;
+        final cardHeightCollapsed = cardWidthCollapsed + contentHeight;
 
         Widget header(String linkText) => Padding(
           padding: const EdgeInsets.fromLTRB(
@@ -63,13 +63,12 @@ class MenuSection extends StatelessWidget {
         );
 
         if (!expanded) {
-          // Horizontal scroller (2 visible at a time)
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               header('Show more…'),
               SizedBox(
-                height: cardHeight,
+                height: cardHeightCollapsed,
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(
                     horizontal: horizontalPad,
@@ -81,8 +80,8 @@ class MenuSection extends StatelessWidget {
                     final p = products[i];
                     return ProductCard(
                       product: p,
-                      width: cardWidth,
-                      height: cardHeight,
+                      width: cardWidthCollapsed,
+                      height: cardHeightCollapsed,
                       onTap: onSelect == null ? null : () => onSelect!(p),
                       onAdd: onAdd == null ? null : () => onAdd!(p),
                     );
@@ -93,6 +92,19 @@ class MenuSection extends StatelessWidget {
             ],
           );
         }
+
+        int columnsForWidth(double w) {
+          if (w < 420) return 2;
+          if (w < 600) return 3;
+          if (w < 840) return 4;
+          return 5;
+        }
+
+        final cols = columnsForWidth(c.maxWidth);
+        final usableExpanded =
+            c.maxWidth - (horizontalPad * 2) - gap * (cols - 1);
+        final cardWidthExpanded = usableExpanded / cols;
+        final cardHeightExpanded = cardWidthExpanded + contentHeight;
 
         // Expanded inline grid
         return Column(
@@ -107,8 +119,8 @@ class MenuSection extends StatelessWidget {
                 children: products.map((p) {
                   return ProductCard(
                     product: p,
-                    width: cardWidth,
-                    height: cardHeight,
+                    width: cardWidthExpanded,
+                    height: cardHeightExpanded,
                     onTap: onSelect == null ? null : () => onSelect!(p),
                     onAdd: onAdd == null ? null : () => onAdd!(p),
                   );
