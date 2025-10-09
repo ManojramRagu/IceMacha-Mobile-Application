@@ -24,7 +24,7 @@ class UserProfile extends StatelessWidget {
           Icon(Icons.account_circle, size: 80, color: cs.primary),
           const SizedBox(height: 8),
           Text(
-            auth.name,
+            auth.displayName,
             style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 2),
@@ -36,7 +36,12 @@ class UserProfile extends StatelessWidget {
           FilledButton.icon(
             icon: const Icon(Icons.logout),
             label: const Text('Log out'),
-            onPressed: () => context.read<AuthProvider>().logout(),
+            onPressed: () {
+              context.read<AuthProvider>().logout();
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/login', (r) => false);
+            },
           ),
         ],
       ),

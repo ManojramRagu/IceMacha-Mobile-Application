@@ -4,7 +4,6 @@ import 'package:icemacha/utils/product.dart';
 import 'package:icemacha/utils/product_catalog_provider.dart';
 import 'package:icemacha/utils/cart_provider.dart';
 import 'package:icemacha/widgets/menu_section.dart';
-import 'package:icemacha/widgets/footer.dart';
 import 'package:icemacha/screens/item.dart';
 
 class MenuScreen extends StatelessWidget {
@@ -131,7 +130,6 @@ class MenuScreen extends StatelessWidget {
             ),
 
           const SizedBox(height: 24),
-          const Footer(),
         ],
       ),
     );

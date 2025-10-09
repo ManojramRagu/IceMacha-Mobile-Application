@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:icemacha/widgets/app_nav.dart';
-import 'package:icemacha/widgets/app_menu.dart';
 import 'package:icemacha/screens/home.dart';
 import 'package:icemacha/screens/menu.dart';
 import 'package:icemacha/screens/cart.dart';
@@ -20,7 +20,6 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
   late int _tabIndex;
   late int _pageIndex;
 
@@ -79,8 +78,6 @@ class _AppShellState extends State<AppShell> {
     });
   }
 
-  void _openDrawer() => _scaffoldKey.currentState?.openDrawer();
-
   void _goHome() {
     final authed = context.read<AuthProvider>().isAuthenticated;
     setState(() {
@@ -91,22 +88,13 @@ class _AppShellState extends State<AppShell> {
         _tabIndex = 3;
         _pageIndex = 3;
       }
-      _scaffoldKey.currentState?.closeDrawer();
     });
   }
 
-  void _openAbout() => setState(() {
-    _pageIndex = 4;
-    _scaffoldKey.currentState?.closeDrawer();
-  });
-
-  void _openContact() => setState(() {
-    _pageIndex = 5;
-    _scaffoldKey.currentState?.closeDrawer();
-  });
-
   List<Widget> _buildPages() => [
-    HomeScreen(onBuyNow: () => _goTab(1)),
+    HomeScreen(
+      onBuyNow: () => _goTab(1),
+    ), // we'll remove this button later per your plan
     const MenuScreen(),
     CartScreen(onBrowseMenu: () => _goTab(1)),
     const ProfileScreen(),
@@ -123,13 +111,8 @@ class _AppShellState extends State<AppShell> {
     final hideBottomSelection = _pageIndex >= 4 || onAuthScreens;
 
     return Scaffold(
-      key: _scaffoldKey,
-      appBar: onAuthScreens
-          ? null
-          : AppTopBar(onMenuTap: _openDrawer, onLogoTap: _goHome),
-      drawer: onAuthScreens
-          ? null
-          : AppDrawer(onAbout: _openAbout, onContact: _openContact),
+      // no drawer, no scaffold key
+      appBar: onAuthScreens ? null : AppTopBar(onLogoTap: _goHome),
       body: IndexedStack(index: _pageIndex, children: pages),
       bottomNavigationBar: onAuthScreens
           ? null
