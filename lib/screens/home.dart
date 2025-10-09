@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:icemacha/widgets/promo_carousel.dart';
+import 'package:icemacha/core/responsive.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, this.onBuyNow});
@@ -21,20 +22,19 @@ class HomeScreen extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-      children: [
-        // Hero banner
-        ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Image.asset(_hero, fit: BoxFit.cover),
-          ),
-        ),
-        const SizedBox(height: 20),
+    final wide = isWide(MediaQuery.sizeOf(context).width);
 
-        // Intro
+    Widget heroBanner() => ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Image.asset(_hero, fit: BoxFit.cover),
+      ),
+    );
+
+    Widget introAndPromos() => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
         Center(
           child: Text(
             'Delicious Moments\nDelivered to You',
@@ -75,7 +75,6 @@ class HomeScreen extends StatelessWidget {
             dotsBelow: true,
           ),
         ),
-
         const SizedBox(height: 14),
 
         Align(
@@ -89,6 +88,24 @@ class HomeScreen extends StatelessWidget {
 
         const SizedBox(height: 28),
       ],
+    );
+
+    if (wide) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: heroBanner()),
+            const SizedBox(width: 16),
+            Expanded(child: SingleChildScrollView(child: introAndPromos())),
+          ],
+        ),
+      );
+    }
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      children: [heroBanner(), const SizedBox(height: 20), introAndPromos()],
     );
   }
 }
