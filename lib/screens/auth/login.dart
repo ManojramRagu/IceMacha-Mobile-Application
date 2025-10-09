@@ -28,8 +28,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _busy = false;
 
-  static const _logo = 'assets/img/logo.webp';
-
   @override
   void dispose() {
     _email.dispose();
@@ -77,8 +75,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
 
     return Form(
       key: _formKey,
@@ -87,44 +85,19 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // ========== NEW ============
             Center(
-              child: Column(
-                children: [
-                  ClipOval(
-                    child: Container(
-                      width: 56,
-                      height: 56,
-                      color: Colors.white.withValues(alpha: 0.95),
-                      padding: const EdgeInsets.all(4),
-                      child: Image.asset(
-                        _logo,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) =>
-                            Icon(Icons.local_cafe, color: cs.primary),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Welcome to IceMacha',
-                    style: tt.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: cs.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Login',
-                    style: tt.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: cs.onSurface,
-                    ),
-                  ),
-                ],
+              child: Text(
+                'Login',
+                style: tt.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: cs.onSurface,
+                ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
+            //========== END OF NEW ============
             EmailField(controller: _email),
             const SizedBox(height: 12),
             PasswordField(
