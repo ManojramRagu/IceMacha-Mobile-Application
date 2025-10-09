@@ -9,6 +9,7 @@ import 'package:icemacha/screens/auth/edit_profile.dart';
 import 'package:icemacha/screens/about.dart';
 import 'package:icemacha/screens/contact.dart';
 import 'package:icemacha/utils/theme_provider.dart';
+import 'package:icemacha/core/responsive.dart';
 
 enum _Mode { login, register }
 
@@ -30,6 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final auth = context.watch<AuthProvider>();
+    final wide = isWide(MediaQuery.sizeOf(context).width);
 
     final Widget body = auth.isAuthenticated
         ? const UserProfile()
@@ -42,6 +44,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 )
               : RegisterScreen(onLoginTap: _goLogin, onRegistered: _goLogin));
+
+    Widget accountCard() => Card(
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.edit),
+            title: const Text('Edit Profile'),
+            subtitle: const Text('Change your name or password'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Widget appearanceCard() => Card(
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Consumer<ThemeProvider>(
+        builder: (context, theme, _) {
+          final systemIsDark = Theme.of(context).brightness == Brightness.dark;
+          final subtitle = theme.mode == ThemeMode.system
+              ? 'Follows device (${systemIsDark ? 'dark' : 'light'})'
+              : (theme.isDark ? 'Dark' : 'Light');
+          return SwitchListTile(
+            secondary: const Icon(Icons.dark_mode_outlined),
+            title: const Text('Dark mode'),
+            subtitle: Text(subtitle),
+            value: theme.isDark,
+            onChanged: (_) => theme.toggle(),
+          );
+        },
+      ),
+    );
+
+    Widget infoCard() => Card(
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('About App'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AboutScreen()),
+              );
+            },
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.contact_support_outlined),
+            title: const Text('Contact Us'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ContactScreen()),
+              );
+            },
+          ),
+        ],
+      ),
+    );
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
@@ -59,92 +132,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 16),
 
-          PageBodyNarrow(child: body),
-          if (auth.isAuthenticated) ...[
+          if (auth.isAuthenticated && wide)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: PageBodyNarrow(child: body)),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text('Account', style: tt.titleMedium),
+                        const SizedBox(height: 8),
+                        accountCard(),
+                        const SizedBox(height: 16),
+                        Text('Appearance', style: tt.titleMedium),
+                        const SizedBox(height: 8),
+                        appearanceCard(),
+                        const SizedBox(height: 16),
+                        Text('Information', style: tt.titleMedium),
+                        const SizedBox(height: 8),
+                        infoCard(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else
+            PageBodyNarrow(child: body),
+
+          if (auth.isAuthenticated && !wide) ...[
             const SizedBox(height: 24),
             Text('Account', style: tt.titleMedium),
             const SizedBox(height: 8),
-            Card(
-              elevation: 0,
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.edit),
-                    title: const Text('Edit Profile'),
-                    subtitle: const Text('Change your name or password'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const EditProfileScreen(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            accountCard(),
             const SizedBox(height: 16),
 
             Text('Appearance', style: tt.titleMedium),
             const SizedBox(height: 8),
-            Card(
-              elevation: 0,
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              child: Consumer<ThemeProvider>(
-                builder: (context, theme, _) {
-                  final systemIsDark =
-                      Theme.of(context).brightness == Brightness.dark;
-                  final subtitle = theme.mode == ThemeMode.system
-                      ? 'Follows device (${systemIsDark ? 'dark' : 'light'})'
-                      : (theme.isDark ? 'Dark' : 'Light');
-                  return SwitchListTile(
-                    secondary: const Icon(Icons.dark_mode_outlined),
-                    title: const Text('Dark mode'),
-                    subtitle: Text(subtitle),
-                    value: theme.isDark,
-                    onChanged: (_) => theme.toggle(),
-                  );
-                },
-              ),
-            ),
+            appearanceCard(),
             const SizedBox(height: 16),
 
             Text('Information', style: tt.titleMedium),
             const SizedBox(height: 8),
-            Card(
-              elevation: 0,
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.info_outline),
-                    title: const Text('About App'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const AboutScreen()),
-                      );
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.contact_support_outlined),
-                    title: const Text('Contact Us'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ContactScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+            infoCard(),
           ],
         ],
       ),
