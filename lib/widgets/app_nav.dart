@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:icemacha/utils/cart_provider.dart';
 
-// TOP NAVIGATION BAR (no hamburger)
+// TOP NAVIGATION BAR
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   const AppTopBar({super.key, this.onLogoTap});
 
@@ -13,7 +15,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     final cs = Theme.of(context).colorScheme;
 
     return AppBar(
-      // Back arrow appears automatically on pushed routes (default behavior).
+      // Back arrow appears automatically
       centerTitle: true,
       title: GestureDetector(
         onTap: onLogoTap,
@@ -26,7 +28,6 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
             child: Image.asset(
               _logo,
               fit: BoxFit.contain,
-              // Fallback icon uses onSurface so it’s readable in light/dark.
               errorBuilder: (_, __, ___) =>
                   Icon(Icons.local_cafe, color: cs.onSurface),
             ),
@@ -62,6 +63,8 @@ class AppBottomNav extends StatelessWidget {
       _NavItem('Profile', Icons.person_outline, Icons.person),
     ];
 
+    final qty = context.select<CartProvider, int>((c) => c.totalQty);
+
     return SafeArea(
       top: false,
       child: Container(
@@ -73,7 +76,8 @@ class AppBottomNav extends StatelessWidget {
         child: Row(
           children: List.generate(items.length, (i) {
             final selected = i == currentIndex;
-            final icon = selected ? items[i].filled : items[i].outline;
+            final iconData = selected ? items[i].filled : items[i].outline;
+            final iconColor = selected ? cs.onPrimary : cs.onSurfaceVariant;
 
             return Expanded(
               child: InkWell(
@@ -102,11 +106,14 @@ class AppBottomNav extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        icon,
-                        size: 26,
-                        color: selected ? cs.onPrimary : cs.onSurfaceVariant,
-                      ),
+                      if (items[i].label == 'Cart')
+                        _CartIconWithBadge(
+                          icon: iconData,
+                          color: iconColor,
+                          count: qty,
+                        )
+                      else
+                        Icon(iconData, size: 26, color: iconColor),
                       const SizedBox(height: 6),
                       Text(
                         items[i].label,
@@ -136,4 +143,57 @@ class _NavItem {
   final IconData outline;
   final IconData filled;
   const _NavItem(this.label, this.outline, this.filled);
+}
+
+class _CartIconWithBadge extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final int count;
+
+  const _CartIconWithBadge({
+    required this.icon,
+    required this.color,
+    required this.count,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final iconWidget = Icon(icon, size: 26, color: color);
+
+    if (count <= 0) return iconWidget;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        iconWidget,
+        Positioned(
+          right: -6,
+          top: -6,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 160),
+            transitionBuilder: (child, anim) =>
+                ScaleTransition(scale: anim, child: child),
+            child: Container(
+              key: ValueKey(count),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.error,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              constraints: const BoxConstraints(minWidth: 18),
+              child: Text(
+                '$count',
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
