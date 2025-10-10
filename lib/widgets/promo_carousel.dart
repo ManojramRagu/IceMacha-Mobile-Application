@@ -73,7 +73,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
     final cs = Theme.of(context).colorScheme;
 
     // Dots per promotion
-    Widget _dots() => Row(
+    Widget dots() => Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(widget.imagePaths.length, (i) {
         final selected = i == _index;
@@ -148,7 +148,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
                       horizontal: 8,
                       vertical: 6,
                     ),
-                    child: _dots(),
+                    child: dots(),
                   ),
                 ),
               ),
@@ -160,7 +160,7 @@ class _PromoCarouselState extends State<PromoCarousel> {
     if (widget.dotsBelow) {
       return Column(
         mainAxisSize: MainAxisSize.min,
-        children: [slide, const SizedBox(height: 8), _dots()],
+        children: [slide, const SizedBox(height: 8), dots()],
       );
     }
 
