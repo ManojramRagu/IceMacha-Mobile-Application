@@ -20,6 +20,7 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   late int _tabIndex;
   late int _pageIndex;
+  bool? _wasAuthed;
 
   AuthProvider? _auth;
 
@@ -38,12 +39,17 @@ class _AppShellState extends State<AppShell> {
       _auth?.removeListener(_onAuthChange);
       _auth = auth;
       _auth!.addListener(_onAuthChange);
+      _wasAuthed = _auth!.isAuthenticated;
     }
   }
 
   void _onAuthChange() {
     if (!mounted) return;
     final authed = _auth!.isAuthenticated;
+
+    if (_wasAuthed == authed) return;
+    _wasAuthed = authed;
+
     setState(() {
       if (authed) {
         _tabIndex = 0;

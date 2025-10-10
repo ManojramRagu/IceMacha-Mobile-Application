@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:icemacha/utils/auth_provider.dart';
-import 'package:icemacha/widgets/form.dart'; // NameField
+import 'package:icemacha/widgets/form.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -19,7 +19,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     final ap = context.read<AuthProvider>();
-    // If name is "Guest", start blank to nudge setting a real name
     final initial = ap.name.trim() == 'Guest' ? '' : ap.name.trim();
     _name = TextEditingController(text: initial);
   }
@@ -42,13 +41,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           key: _formKey,
           child: Column(
             children: [
-              // ========== NEW ============
-              // Use shared NameField (letters + spaces only)
               NameField(
                 controller: _name,
                 textInputAction: TextInputAction.next,
               ),
-              //========== END OF NEW ============
               const SizedBox(height: 12),
 
               TextFormField(
@@ -66,7 +62,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 obscureText: true,
                 validator: (v) {
-                  // Password change is optional; only validate when provided
                   if (_pass.text.isEmpty && (v == null || v.isEmpty)) {
                     return null;
                   }
@@ -90,7 +85,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
-                  // Go back to Profile (no redirects to Home)
                   Navigator.of(context).pop();
                 },
                 child: const Text('Update'),
