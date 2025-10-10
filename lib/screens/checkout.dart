@@ -25,9 +25,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   final _email = TextEditingController();
   final _phone = TextEditingController();
 
+  // Address (only if Other selected)
   final _address = TextEditingController();
   final _city = TextEditingController();
 
+  // Card (only if Card selected)
   final _cardNumber = TextEditingController();
   final _expiry = TextEditingController();
   final _cvv = TextEditingController();
@@ -58,7 +60,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ).showSnackBar(const SnackBar(content: Text('Your cart is empty')));
       return;
     }
-    // Validate visible fields only
+
+    // Validate only currently mounted fields
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _submitting = true);
@@ -75,7 +78,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         )
         .toList(growable: false);
 
-    // Payment method from radio
     final paymentMethod = _pay == PaymentMethod.card ? 'CARD' : 'CASH';
 
     // Delivery label for success page
@@ -113,7 +115,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final tt = Theme.of(context).textTheme;
     final cart = context.watch<CartProvider>();
 
-    // Build itemized summary at the top
     final summaryLines = cart.items
         .map(
           (i) => SummaryLine(
@@ -157,22 +158,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   children: [
                     // Contact
                     const SectionTitle('Contact Details'),
-                    TextFormField(
-                      controller: _name,
-                      decoration: const InputDecoration(labelText: 'Full name'),
-                      textInputAction: TextInputAction.next,
-                      validator: Validators.required('Full name'),
-                    ),
+
+                    // Name & Email
+                    NameField(controller: _name),
                     const SizedBox(height: 8),
-                    TextFormField(
-                      controller: _email,
-                      decoration: const InputDecoration(labelText: 'Email'),
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      validator: Validators.email('Email'),
-                      autofillHints: const [AutofillHints.email],
-                    ),
+                    EmailField(controller: _email),
                     const SizedBox(height: 8),
+
+                    // Phone
                     TextFormField(
                       controller: _phone,
                       decoration: const InputDecoration(labelText: 'Phone'),
@@ -205,6 +198,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       onChanged: (v) =>
                           setState(() => _delivery = v ?? DeliveryOption.home),
                     ),
+
                     if (_delivery == DeliveryOption.address) ...[
                       const SizedBox(height: 8),
                       TextFormField(
