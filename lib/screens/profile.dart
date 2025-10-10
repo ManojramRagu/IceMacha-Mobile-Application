@@ -80,17 +80,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return LayoutBuilder(
         builder: (context, constraints) {
           const pad = EdgeInsets.fromLTRB(16, 20, 16, 24);
-          final double targetH = (constraints.maxHeight - pad.vertical)
+          final targetH = (constraints.maxHeight - pad.vertical)
               .clamp(0.0, double.infinity)
               .toDouble();
+          final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
           return SingleChildScrollView(
-            padding: pad,
+            padding: pad.add(EdgeInsets.only(bottom: bottomInset)),
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: targetH,
-                maxHeight: targetH,
-              ),
+              constraints: BoxConstraints(minHeight: targetH),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -110,9 +108,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(child: _welcomeHeader(context)),
-          const SizedBox(height: 16),
-
           if (auth.isAuthenticated && wide)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
