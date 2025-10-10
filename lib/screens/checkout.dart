@@ -201,7 +201,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         ),
                         DropdownMenuItem(
                           value: DeliveryOption.address,
-                          child: Text('Address'),
+                          child: Text('Other'),
                         ),
                       ],
                       onChanged: (v) =>
@@ -212,7 +212,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _address,
-                        decoration: const InputDecoration(labelText: 'Address'),
+                        decoration: const InputDecoration(
+                          labelText: 'Enter your Address',
+                        ),
                         textInputAction: TextInputAction.next,
                         validator: Validators.required('Address'),
                       ),
@@ -244,7 +246,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       onChanged: (v) => setState(() => _pay = v!),
                     ),
 
-                    // Card fields only when Card selected
                     if (_pay == PaymentMethod.card) ...[
                       const SizedBox(height: 8),
                       TextFormField(
@@ -255,7 +256,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         keyboardType: TextInputType.number,
                         textInputAction: TextInputAction.next,
                         inputFormatters: Formatters.cardNumberGrouped(),
-                        // Keep your existing validator style; enforced only when visible
                         validator: Validators.cardNumberLuhn('Card number'),
                       ),
                       const SizedBox(height: 8),
@@ -300,7 +300,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         busy: _submitting,
                         label: 'Place Order',
                         busyLabel: 'Placing order',
-                        icon: Icons.lock,
+                        icon: Icons.payments,
                         onPressed: _submitting ? null : _placeOrder,
                       ),
                     ),

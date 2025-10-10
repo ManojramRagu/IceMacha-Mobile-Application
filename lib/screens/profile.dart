@@ -8,6 +8,8 @@ import 'package:icemacha/screens/auth/user_profile.dart';
 import 'package:icemacha/screens/auth/edit_profile.dart';
 import 'package:icemacha/screens/about.dart';
 import 'package:icemacha/screens/contact.dart';
+import 'package:icemacha/utils/theme_provider.dart';
+import 'package:icemacha/core/responsive.dart';
 
 enum _Mode { login, register }
 
@@ -24,11 +26,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _goLogin() => setState(() => _mode = _Mode.login);
   void _goRegister() => setState(() => _mode = _Mode.register);
 
-  @override
-  Widget build(BuildContext context) {
+  static const _logo = 'assets/img/logo.webp';
+
+  Widget _welcomeHeader(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    return Column(
+      children: [
+        ClipOval(
+          child: Container(
+            width: 56,
+            height: 56,
+            color: Colors.white.withValues(alpha: 0.95),
+            padding: const EdgeInsets.all(4),
+            child: Image.asset(
+              _logo,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) =>
+                  Icon(Icons.local_cafe, color: cs.primary),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Welcome to IceMacha',
+          style: tt.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: cs.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final wide = isWide(MediaQuery.sizeOf(context).width);
 
     final Widget body = auth.isAuthenticated
         ? const UserProfile()
@@ -42,26 +76,171 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 )
               : RegisterScreen(onLoginTap: _goLogin, onRegistered: _goLogin));
 
+    if (!auth.isAuthenticated) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          const pad = EdgeInsets.fromLTRB(16, 20, 16, 24);
+          final double targetH = (constraints.maxHeight - pad.vertical)
+              .clamp(0.0, double.infinity)
+              .toDouble();
+
+          return SingleChildScrollView(
+            padding: pad,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: targetH,
+                maxHeight: targetH,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _welcomeHeader(context),
+                  const SizedBox(height: 16),
+                  PageBodyNarrow(child: body),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(
-            child: Text(
-              'Your Account',
-              style: tt.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: cs.primary,
-              ),
-            ),
-          ),
+          // ========== NEW ============
+          Center(child: _welcomeHeader(context)),
+          //========== END OF NEW ============
           const SizedBox(height: 16),
 
-          PageBodyNarrow(child: body),
-          if (auth.isAuthenticated) ...[
+          if (auth.isAuthenticated && wide)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: PageBodyNarrow(child: body)),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Account',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Card(
+                          elevation: 0,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          child: Column(
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.edit),
+                                title: const Text('Edit Profile'),
+                                subtitle: const Text(
+                                  'Change your name or password',
+                                ),
+                                trailing: const Icon(Icons.chevron_right),
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const EditProfileScreen(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Appearance',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Card(
+                          elevation: 0,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          child: Consumer<ThemeProvider>(
+                            builder: (context, theme, _) {
+                              final systemIsDark =
+                                  Theme.of(context).brightness ==
+                                  Brightness.dark;
+                              final subtitle = theme.mode == ThemeMode.system
+                                  ? 'Follows device (${systemIsDark ? 'dark' : 'light'})'
+                                  : (theme.isDark ? 'Dark' : 'Light');
+                              return SwitchListTile(
+                                secondary: const Icon(Icons.dark_mode_outlined),
+                                title: const Text('Dark mode'),
+                                subtitle: Text(subtitle),
+                                value: theme.isDark,
+                                onChanged: (_) => theme.toggle(),
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Information',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Card(
+                          elevation: 0,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          child: Column(
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.info_outline),
+                                title: const Text('About App'),
+                                trailing: const Icon(Icons.chevron_right),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const AboutScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const Divider(height: 1),
+                              ListTile(
+                                leading: const Icon(
+                                  Icons.contact_support_outlined,
+                                ),
+                                title: const Text('Contact Us'),
+                                trailing: const Icon(Icons.chevron_right),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const ContactScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else
+            PageBodyNarrow(child: body),
+
+          if (auth.isAuthenticated && !wide) ...[
             const SizedBox(height: 24),
-            Text('Account', style: tt.titleMedium),
+            Text('Account', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             Card(
               elevation: 0,
@@ -84,7 +263,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Text('Information', style: tt.titleMedium),
+            Text('Appearance', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Card(
+              elevation: 0,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              child: Consumer<ThemeProvider>(
+                builder: (context, theme, _) {
+                  final systemIsDark =
+                      Theme.of(context).brightness == Brightness.dark;
+                  final subtitle = theme.mode == ThemeMode.system
+                      ? 'Follows device (${systemIsDark ? 'dark' : 'light'})'
+                      : (theme.isDark ? 'Dark' : 'Light');
+                  return SwitchListTile(
+                    secondary: const Icon(Icons.dark_mode_outlined),
+                    title: const Text('Dark mode'),
+                    subtitle: Text(subtitle),
+                    value: theme.isDark,
+                    onChanged: (_) => theme.toggle(),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text('Information', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             Card(
               elevation: 0,

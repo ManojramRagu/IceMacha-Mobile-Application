@@ -75,6 +75,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+    final cs = Theme.of(context).colorScheme;
+
     return Form(
       key: _formKey,
       autovalidateMode: _auto,
@@ -82,6 +85,19 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // ========== NEW ============
+            Center(
+              child: Text(
+                'Login',
+                style: tt.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: cs.onSurface,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            //========== END OF NEW ============
             EmailField(controller: _email),
             const SizedBox(height: 12),
             PasswordField(
