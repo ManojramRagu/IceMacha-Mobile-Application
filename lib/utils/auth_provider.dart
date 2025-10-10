@@ -26,7 +26,7 @@ class AuthProvider extends ChangeNotifier {
     // Registration does not auto-login
     _email = email.trim();
     // Display name based on email
-    _displayName = _email!.split('@').first;
+    _displayName = null;
     // Home address at registration
     _homeAddress = (address ?? '').trim().isEmpty ? null : address!.trim();
     notifyListeners();
