@@ -58,7 +58,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       ).showSnackBar(const SnackBar(content: Text('Your cart is empty')));
       return;
     }
-    // Validate visible fields only (hidden ones aren't in the tree)
+    // Validate visible fields only
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     setState(() => _submitting = true);
@@ -78,12 +78,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     // Payment method from radio
     final paymentMethod = _pay == PaymentMethod.card ? 'CARD' : 'CASH';
 
-    // Delivery label for success page ("Home" or entered address)
+    // Delivery label for success page
     String deliveryLabel;
     if (_delivery == DeliveryOption.home) {
       deliveryLabel = 'Home';
     } else {
-      // Combine address + city if provided
       final addr = _address.text.trim();
       final city = _city.text.trim();
       deliveryLabel = city.isEmpty ? addr : '$addr, $city';
@@ -93,7 +92,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       orderNo: DateTime.now().millisecondsSinceEpoch.toString().substring(7),
       dateTime: DateTime.now(),
       paymentMethod: paymentMethod,
-      // Reusing `city` field to carry the delivery label shown as "Delivery"
       city: deliveryLabel,
       lines: frozenLines,
       total: cart.subtotal,
@@ -207,7 +205,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       onChanged: (v) =>
                           setState(() => _delivery = v ?? DeliveryOption.home),
                     ),
-                    // Address + City only when Address is selected
                     if (_delivery == DeliveryOption.address) ...[
                       const SizedBox(height: 8),
                       TextFormField(

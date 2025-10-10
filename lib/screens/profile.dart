@@ -110,9 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ========== NEW ============
           Center(child: _welcomeHeader(context)),
-          //========== END OF NEW ============
           const SizedBox(height: 16),
 
           if (auth.isAuthenticated && wide)

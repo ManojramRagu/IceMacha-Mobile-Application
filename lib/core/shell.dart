@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:icemacha/widgets/app_nav.dart';
 import 'package:icemacha/screens/home.dart';
 import 'package:icemacha/screens/menu.dart';
@@ -8,7 +7,6 @@ import 'package:icemacha/screens/cart.dart';
 import 'package:icemacha/screens/profile.dart';
 import 'package:icemacha/screens/about.dart';
 import 'package:icemacha/screens/contact.dart';
-
 import 'package:icemacha/utils/auth_provider.dart';
 
 class AppShell extends StatefulWidget {
@@ -92,9 +90,7 @@ class _AppShellState extends State<AppShell> {
   }
 
   List<Widget> _buildPages() => [
-    HomeScreen(
-      onBuyNow: () => _goTab(1),
-    ), // we'll remove this button later per your plan
+    HomeScreen(onBuyNow: () => _goTab(1)),
     const MenuScreen(),
     CartScreen(onBrowseMenu: () => _goTab(1)),
     const ProfileScreen(),
@@ -111,7 +107,6 @@ class _AppShellState extends State<AppShell> {
     final hideBottomSelection = _pageIndex >= 4 || onAuthScreens;
 
     return Scaffold(
-      // no drawer, no scaffold key
       appBar: onAuthScreens ? null : AppTopBar(onLogoTap: _goHome),
       body: IndexedStack(index: _pageIndex, children: pages),
       bottomNavigationBar: onAuthScreens
