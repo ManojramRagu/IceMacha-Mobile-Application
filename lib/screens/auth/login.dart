@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
               textInputAction: TextInputAction.done,
               validator: Validators.compose([
                 Validators.required('Password'),
-                Validators.minLength(6, label: 'Password'),
+                Validators.minLength(8, label: 'Password'),
               ]),
             ),
             const SizedBox(height: 12),
