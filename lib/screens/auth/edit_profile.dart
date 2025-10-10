@@ -36,60 +36,73 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Profile')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              NameField(
-                controller: _name,
-                textInputAction: TextInputAction.next,
-              ),
-              const SizedBox(height: 12),
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+        child: PageBodyNarrow(
+          child: Form(
+            key: _formKey,
+            child: AuthCard(
+              child: Column(
+                children: [
+                  NameField(
+                    controller: _name,
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: 12),
 
-              TextFormField(
-                controller: _pass,
-                decoration: const InputDecoration(
-                  labelText: 'New password (optional)',
-                ),
-                obscureText: true,
-                textInputAction: TextInputAction.next,
-              ),
-              TextFormField(
-                controller: _confirm,
-                decoration: const InputDecoration(
-                  labelText: 'Confirm new password',
-                ),
-                obscureText: true,
-                validator: (v) {
-                  if (_pass.text.isEmpty && (v == null || v.isEmpty)) {
-                    return null;
-                  }
-                  if (_pass.text.length < 6) return 'Min 6 characters';
-                  if (v != _pass.text) return 'Passwords do not match';
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
+                  // Optional new password
+                  PasswordField(
+                    controller: _pass,
+                    label: 'New password (optional)',
+                    textInputAction: TextInputAction.next,
+                    validator: (v) {
+                      final s = (v ?? '').trim();
+                      if (s.isEmpty) return null;
+                      if (s.length < 8) return 'Min 8 characters';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
 
-              FilledButton(
-                onPressed: () {
-                  if (!(_formKey.currentState?.validate() ?? false)) return;
-                  context.read<AuthProvider>().updateProfile(
-                    name: _name.text,
-                    password: _pass.text.isEmpty ? null : _pass.text,
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Profile updated'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Update'),
+                  // Confirm new password
+                  PasswordField(
+                    controller: _confirm,
+                    label: 'Confirm new password',
+                    validator: (v) {
+                      final p = _pass.text.trim();
+                      final c = (v ?? '').trim();
+                      if (p.isEmpty && c.isEmpty) return null;
+                      if (p.length < 8) return 'Min 8 characters';
+                      if (c != p) return 'Passwords do not match';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Primary button
+                  FilledButton(
+                    onPressed: () {
+                      if (!(_formKey.currentState?.validate() ?? false)) {
+                        return;
+                      }
+                      context.read<AuthProvider>().updateProfile(
+                        name: _name.text,
+                        password: _pass.text.isEmpty ? null : _pass.text,
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Profile updated'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                      // Return to Profile screen
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Update'),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
