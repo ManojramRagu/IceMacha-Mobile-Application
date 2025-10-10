@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:icemacha/utils/auth_provider.dart';
-import 'package:icemacha/widgets/form.dart';
+import 'package:icemacha/widgets/form.dart'; // NameField
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -19,9 +19,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     final ap = context.read<AuthProvider>();
-    _name = TextEditingController(
-      text: ap.displayName == 'Guest' ? '' : ap.displayName,
-    );
+    // If name is "Guest", start blank to nudge setting a real name
+    final initial = ap.name.trim() == 'Guest' ? '' : ap.name.trim();
+    _name = TextEditingController(text: initial);
   }
 
   @override
@@ -32,87 +32,70 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  void _update() {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-
-    final newName = _name.text.trim();
-    final newPass = _pass.text.trim();
-
-    context.read<AuthProvider>().updateProfile(
-      name: newName,
-      password: newPass.isEmpty ? null : newPass,
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profile updated'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-
-    Navigator.of(context).pop();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Profile')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: PageBodyNarrow(
-          child: Form(
-            key: _formKey,
-            child: AuthCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextFormField(
-                    controller: _name,
-                    decoration: const InputDecoration(
-                      labelText: 'Display name',
-                    ),
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Enter a name' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  PasswordField(
-                    controller: _pass,
-                    label: 'New password (optional)',
-                    textInputAction: TextInputAction.next,
-                    validator: (v) {
-                      final s = (v ?? '').trim();
-                      if (s.isEmpty) return null;
-                      if (s.length < 6) return 'Min 6 characters';
-                      return null;
-                    },
-                  ),
-                  PasswordField(
-                    controller: _confirm,
-                    label: 'Confirm new password',
-                    textInputAction: TextInputAction.done,
-                    validator: (v) {
-                      final s = (v ?? '').trim();
-                      if (_pass.text.trim().isEmpty && s.isEmpty) return null;
-                      if (s != _pass.text.trim()) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: PrimaryBusyButton(
-                      busy: false,
-                      label: 'Update',
-                      busyLabel: 'Updating…',
-                      icon: Icons.check_rounded,
-                      onPressed: _update,
-                    ),
-                  ),
-                ],
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              // ========== NEW ============
+              // Use shared NameField (letters + spaces only)
+              NameField(
+                controller: _name,
+                textInputAction: TextInputAction.next,
               ),
-            ),
+              //========== END OF NEW ============
+              const SizedBox(height: 12),
+
+              TextFormField(
+                controller: _pass,
+                decoration: const InputDecoration(
+                  labelText: 'New password (optional)',
+                ),
+                obscureText: true,
+                textInputAction: TextInputAction.next,
+              ),
+              TextFormField(
+                controller: _confirm,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm new password',
+                ),
+                obscureText: true,
+                validator: (v) {
+                  // Password change is optional; only validate when provided
+                  if (_pass.text.isEmpty && (v == null || v.isEmpty)) {
+                    return null;
+                  }
+                  if (_pass.text.length < 6) return 'Min 6 characters';
+                  if (v != _pass.text) return 'Passwords do not match';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              FilledButton(
+                onPressed: () {
+                  if (!(_formKey.currentState?.validate() ?? false)) return;
+                  context.read<AuthProvider>().updateProfile(
+                    name: _name.text,
+                    password: _pass.text.isEmpty ? null : _pass.text,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Profile updated'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                  // Go back to Profile (no redirects to Home)
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Update'),
+              ),
+            ],
           ),
         ),
       ),
