@@ -26,89 +26,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _goLogin() => setState(() => _mode = _Mode.login);
   void _goRegister() => setState(() => _mode = _Mode.register);
 
-  static const _logo = 'assets/img/logo.webp';
-
-  Widget _welcomeHeader(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    return Column(
-      children: [
-        ClipOval(
-          child: Container(
-            width: 56,
-            height: 56,
-            color: Colors.white.withValues(alpha: 0.95),
-            padding: const EdgeInsets.all(4),
-            child: Image.asset(
-              _logo,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) =>
-                  Icon(Icons.local_cafe, color: cs.primary),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Welcome to IceMacha',
-          style: tt.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: cs.primary,
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final wide = isWide(MediaQuery.sizeOf(context).width);
 
-    final Widget body = auth.isAuthenticated
-        ? const UserProfile()
-        : (_mode == _Mode.login
-              ? LoginScreen(
-                  onRegisterTap: _goRegister,
-                  onLoggedIn: () {
-                    if (!mounted) return;
-                    setState(() {});
-                  },
-                )
-              : RegisterScreen(onLoginTap: _goLogin, onRegistered: _goLogin));
-
     if (!auth.isAuthenticated) {
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          const pad = EdgeInsets.fromLTRB(16, 20, 16, 24);
-          final targetH = (constraints.maxHeight - pad.vertical)
-              .clamp(0.0, double.infinity)
-              .toDouble();
-          final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-
-          return SingleChildScrollView(
-            padding: pad.add(EdgeInsets.only(bottom: bottomInset)),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: targetH),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _welcomeHeader(context),
-                  const SizedBox(height: 16),
-                  PageBodyNarrow(child: body),
-                ],
-              ),
-            ),
-          );
-        },
-      );
+      return _mode == _Mode.login
+          ? LoginScreen(
+              onRegisterTap: _goRegister,
+              onLoggedIn: () {
+                if (!mounted) return;
+                setState(() {});
+              },
+            )
+          : RegisterScreen(onLoginTap: _goLogin, onRegistered: _goLogin);
     }
+
+    final Widget body = const UserProfile();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (auth.isAuthenticated && wide)
+          if (wide)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -228,10 +170,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             )
-          else
+          else ...[
             PageBodyNarrow(child: body),
-
-          if (auth.isAuthenticated && !wide) ...[
             const SizedBox(height: 24),
             Text('Account', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),

@@ -4,6 +4,7 @@ import 'package:icemacha/utils/validation.dart';
 import 'package:icemacha/utils/auth_provider.dart';
 import 'package:icemacha/widgets/form.dart';
 import 'package:icemacha/core/shell.dart';
+import 'package:icemacha/widgets/welcome_header.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback onRegisterTap;
@@ -75,59 +76,81 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const pad = EdgeInsets.fromLTRB(16, 20, 16, 24);
+        final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+        final targetH = (constraints.maxHeight - pad.vertical).clamp(
+          0.0,
+          double.infinity,
+        );
 
-    return Form(
-      key: _formKey,
-      autovalidateMode: _auto,
-      child: AuthCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Text(
-                'Login',
-                style: tt.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: cs.onSurface,
+        return SingleChildScrollView(
+          padding: pad.add(EdgeInsets.only(bottom: bottomInset)),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: targetH.toDouble()),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const WelcomeHeader(),
+                const SizedBox(height: 16),
+                PageBodyNarrow(
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: _auto,
+                    child: AuthCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Center(
+                            child: Text(
+                              'Login',
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          EmailField(controller: _email),
+                          const SizedBox(height: 12),
+                          PasswordField(
+                            controller: _password,
+                            label: 'Password',
+                            textInputAction: TextInputAction.done,
+                            validator: Validators.compose([
+                              Validators.required('Password'),
+                              Validators.minLength(6, label: 'Password'),
+                            ]),
+                          ),
+                          const SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton(
+                              onPressed: widget.onRegisterTap,
+                              child: const Text(
+                                "Don't have an account? Register",
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: PrimaryBusyButton(
+                              busy: _busy,
+                              label: 'Sign in',
+                              busyLabel: 'Signing in…',
+                              icon: Icons.login,
+                              onPressed: _submit,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(height: 12),
-
-            EmailField(controller: _email),
-            const SizedBox(height: 12),
-            PasswordField(
-              controller: _password,
-              label: 'Password',
-              textInputAction: TextInputAction.done,
-              validator: Validators.compose([
-                Validators.required('Password'),
-                Validators.minLength(8, label: 'Password'),
-              ]),
-            ),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: widget.onRegisterTap,
-                child: const Text("Don't have an account? Register"),
-              ),
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: PrimaryBusyButton(
-                busy: _busy,
-                label: 'Sign in',
-                busyLabel: 'Signing in…',
-                icon: Icons.login,
-                onPressed: _submit,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
