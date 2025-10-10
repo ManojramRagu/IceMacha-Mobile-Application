@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:icemacha/widgets/app_nav.dart';
 import 'package:icemacha/screens/home.dart';
 import 'package:icemacha/screens/menu.dart';
@@ -8,7 +7,6 @@ import 'package:icemacha/screens/cart.dart';
 import 'package:icemacha/screens/profile.dart';
 import 'package:icemacha/screens/about.dart';
 import 'package:icemacha/screens/contact.dart';
-
 import 'package:icemacha/utils/auth_provider.dart';
 
 class AppShell extends StatefulWidget {
@@ -22,6 +20,7 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   late int _tabIndex;
   late int _pageIndex;
+  bool? _wasAuthed;
 
   AuthProvider? _auth;
 
@@ -40,12 +39,17 @@ class _AppShellState extends State<AppShell> {
       _auth?.removeListener(_onAuthChange);
       _auth = auth;
       _auth!.addListener(_onAuthChange);
+      _wasAuthed = _auth!.isAuthenticated;
     }
   }
 
   void _onAuthChange() {
     if (!mounted) return;
     final authed = _auth!.isAuthenticated;
+
+    if (_wasAuthed == authed) return;
+    _wasAuthed = authed;
+
     setState(() {
       if (authed) {
         _tabIndex = 0;
@@ -92,9 +96,7 @@ class _AppShellState extends State<AppShell> {
   }
 
   List<Widget> _buildPages() => [
-    HomeScreen(
-      onBuyNow: () => _goTab(1),
-    ), // we'll remove this button later per your plan
+    HomeScreen(onBuyNow: () => _goTab(1)),
     const MenuScreen(),
     CartScreen(onBrowseMenu: () => _goTab(1)),
     const ProfileScreen(),
@@ -111,7 +113,6 @@ class _AppShellState extends State<AppShell> {
     final hideBottomSelection = _pageIndex >= 4 || onAuthScreens;
 
     return Scaffold(
-      // no drawer, no scaffold key
       appBar: onAuthScreens ? null : AppTopBar(onLogoTap: _goHome),
       body: IndexedStack(index: _pageIndex, children: pages),
       bottomNavigationBar: onAuthScreens

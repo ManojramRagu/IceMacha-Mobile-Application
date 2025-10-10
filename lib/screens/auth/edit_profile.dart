@@ -19,9 +19,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     final ap = context.read<AuthProvider>();
-    _name = TextEditingController(
-      text: ap.displayName == 'Guest' ? '' : ap.displayName,
-    );
+    final initial = ap.name.trim() == 'Guest' ? '' : ap.name.trim();
+    _name = TextEditingController(text: initial);
   }
 
   @override
@@ -32,49 +31,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  void _update() {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-
-    final newName = _name.text.trim();
-    final newPass = _pass.text.trim();
-
-    context.read<AuthProvider>().updateProfile(
-      name: newName,
-      password: newPass.isEmpty ? null : newPass,
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Profile updated'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-
-    Navigator.of(context).pop();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Profile')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
         child: PageBodyNarrow(
           child: Form(
             key: _formKey,
             child: AuthCard(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  TextFormField(
+                  NameField(
                     controller: _name,
-                    decoration: const InputDecoration(
-                      labelText: 'Display name',
-                    ),
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Enter a name' : null,
+                    textInputAction: TextInputAction.next,
                   ),
                   const SizedBox(height: 12),
+
+                  // Optional new password
                   PasswordField(
                     controller: _pass,
                     label: 'New password (optional)',
@@ -82,33 +57,48 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     validator: (v) {
                       final s = (v ?? '').trim();
                       if (s.isEmpty) return null;
-                      if (s.length < 6) return 'Min 6 characters';
+                      if (s.length < 8) return 'Min 8 characters';
                       return null;
                     },
                   ),
+                  const SizedBox(height: 12),
+
+                  // Confirm new password
                   PasswordField(
                     controller: _confirm,
                     label: 'Confirm new password',
-                    textInputAction: TextInputAction.done,
                     validator: (v) {
-                      final s = (v ?? '').trim();
-                      if (_pass.text.trim().isEmpty && s.isEmpty) return null;
-                      if (s != _pass.text.trim()) {
-                        return 'Passwords do not match';
-                      }
+                      final p = _pass.text.trim();
+                      final c = (v ?? '').trim();
+                      if (p.isEmpty && c.isEmpty) return null;
+                      if (p.length < 8) return 'Min 8 characters';
+                      if (c != p) return 'Passwords do not match';
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: PrimaryBusyButton(
-                      busy: false,
-                      label: 'Update',
-                      busyLabel: 'Updating…',
-                      icon: Icons.check_rounded,
-                      onPressed: _update,
-                    ),
+
+                  // Primary button
+                  FilledButton(
+                    onPressed: () {
+                      if (!(_formKey.currentState?.validate() ?? false)) {
+                        return;
+                      }
+                      context.read<AuthProvider>().updateProfile(
+                        name: _name.text,
+                        password: _pass.text.isEmpty ? null : _pass.text,
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Profile updated'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                      // Return to Profile screen
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Update'),
                   ),
                 ],
               ),

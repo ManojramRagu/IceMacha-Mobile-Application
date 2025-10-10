@@ -24,7 +24,7 @@ class UserProfile extends StatelessWidget {
           Icon(Icons.account_circle, size: 80, color: cs.primary),
           const SizedBox(height: 8),
           Text(
-            auth.displayName,
+            auth.name,
             style: tt.titleLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 2),

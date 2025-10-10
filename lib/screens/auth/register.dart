@@ -77,7 +77,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ========== NEW ============
             Center(
               child: Text(
                 'Create Your Account',
@@ -89,7 +88,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 12),
 
-            //========== END OF NEW ============
             EmailField(controller: _email),
             const SizedBox(height: 12),
             PasswordField(

@@ -85,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ========== NEW ============
             Center(
               child: Text(
                 'Login',
@@ -97,7 +96,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 12),
 
-            //========== END OF NEW ============
             EmailField(controller: _email),
             const SizedBox(height: 12),
             PasswordField(
@@ -106,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
               textInputAction: TextInputAction.done,
               validator: Validators.compose([
                 Validators.required('Password'),
-                Validators.minLength(6, label: 'Password'),
+                Validators.minLength(8, label: 'Password'),
               ]),
             ),
             const SizedBox(height: 12),

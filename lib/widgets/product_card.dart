@@ -4,7 +4,7 @@ import 'package:icemacha/utils/product.dart';
 class ProductCard extends StatelessWidget {
   final Product product;
   final double width;
-  final double? height; // optional: if null we'll compute from width
+  final double? height;
   final VoidCallback? onTap;
   final VoidCallback? onAdd;
 
@@ -17,7 +17,7 @@ class ProductCard extends StatelessWidget {
     this.onAdd,
   });
 
-  static const double _contentHeight = 156; // generous to avoid overflow
+  static const double _contentHeight = 156;
 
   @override
   Widget build(BuildContext context) {

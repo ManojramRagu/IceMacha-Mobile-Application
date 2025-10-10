@@ -73,107 +73,96 @@ class _ItemScreenState extends State<ItemScreen> {
       _qty = maxSelectable == 0 ? 1 : maxSelectable;
     }
 
-    final size = MediaQuery.sizeOf(context);
-    final isLandscape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
-    final isWide = isLandscape || size.width >= 600;
-
-    final Widget imageBlock = ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            ColoredBox(color: cs.surfaceContainerHighest),
-            Image.asset(
-              p.imagePath,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Center(
-                child: Icon(
-                  Icons.broken_image,
-                  color: cs.onSurfaceVariant,
-                  size: 40,
-                ),
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      backgroundColor: cs.surface,
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ColoredBox(color: cs.surfaceContainerHighest),
+                  Image.asset(
+                    p.imagePath,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Center(
+                      child: Icon(
+                        Icons.broken_image,
+                        color: cs.onSurfaceVariant,
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+          const SizedBox(height: 16),
 
-    // details builder = everything that was below the image
-    Widget details() => Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          title,
-          style: tt.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: cs.primary,
+          Text(
+            title,
+            style: tt.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: cs.primary,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(desc, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
-        const SizedBox(height: 16),
-        Text(
-          'LKR ${p.price}',
-          style: tt.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: cs.onSurface,
+          const SizedBox(height: 8),
+
+          Text(desc, style: tt.bodyMedium?.copyWith(color: cs.onSurface)),
+          const SizedBox(height: 16),
+
+          Text(
+            'LKR ${p.price}',
+            style: tt.titleLarge?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: cs.onSurface,
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            if (remaining > 0)
-              QuantitySelector(
-                value: _qty,
-                min: 1,
-                max: remaining,
-                onChanged: (v) => setState(() => _qty = v),
-              )
-            else
-              Text(
-                'Limit reached (${CartProvider.maxQty} per customer)',
-                style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-              ),
-            const Spacer(),
-            ConstrainedBox(
-              constraints: const BoxConstraints.tightFor(
-                height: 40,
-                width: 180,
-              ),
+          const SizedBox(height: 12),
+
+          if (remaining <= 0) ...[
+            Text(
+              'Limit reached (${CartProvider.maxQty} per customer)',
+              style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 40,
               child: FilledButton.icon(
-                onPressed: addToCart,
+                onPressed: null,
                 icon: const Icon(Icons.add_shopping_cart),
                 label: const Text('Add to Cart'),
               ),
             ),
-          ],
-        ),
-      ],
-    );
-
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      backgroundColor: cs.surface,
-      body: isWide
-          ? Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(child: imageBlock),
-                  const SizedBox(width: 16),
-                  Expanded(child: SingleChildScrollView(child: details())),
-                ],
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-              children: [imageBlock, const SizedBox(height: 16), details()],
+          ] else
+            Row(
+              children: [
+                QuantitySelector(
+                  value: _qty,
+                  min: 1,
+                  max: remaining,
+                  onChanged: (v) => setState(() => _qty = v),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: SizedBox(
+                    height: 40,
+                    child: FilledButton.icon(
+                      onPressed: addToCart,
+                      icon: const Icon(Icons.add_shopping_cart),
+                      label: const Text('Add to Cart'),
+                    ),
+                  ),
+                ),
+              ],
             ),
+        ],
+      ),
     );
   }
 }

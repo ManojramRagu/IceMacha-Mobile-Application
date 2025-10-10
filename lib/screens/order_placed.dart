@@ -63,7 +63,6 @@ class OrderPlacedScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 KeyValueRow(label: 'Payment', value: receipt.paymentMethod),
                 const SizedBox(height: 8),
-                // Displays "Home" or the entered address string
                 KeyValueRow(label: 'Delivery', value: receipt.city),
               ],
             ),

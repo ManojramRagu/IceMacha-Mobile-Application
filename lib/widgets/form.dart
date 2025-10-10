@@ -36,6 +36,7 @@ class AuthCard extends StatelessWidget {
   }
 }
 
+// Email Field
 class EmailField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
@@ -61,6 +62,40 @@ class EmailField extends StatelessWidget {
   }
 }
 
+// Name Field
+class NameField extends StatelessWidget {
+  final TextEditingController controller;
+  final String label;
+  final TextInputAction textInputAction;
+
+  const NameField({
+    super.key,
+    required this.controller,
+    this.label = 'Full name',
+    this.textInputAction = TextInputAction.next,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(labelText: label),
+      textCapitalization: TextCapitalization.words,
+      textInputAction: textInputAction,
+      autofillHints: const [AutofillHints.name],
+      validator: (v) {
+        final s = (v ?? '').trim();
+        if (s.isEmpty) return '$label is required';
+        if (!RegExp(r'^[A-Za-z ]+$').hasMatch(s)) {
+          return 'Letters and spaces only';
+        }
+        return null;
+      },
+    );
+  }
+}
+
+// Password Field
 class PasswordField extends StatefulWidget {
   final TextEditingController controller;
   final String label;
@@ -132,7 +167,7 @@ class PrimaryBusyButton extends StatelessWidget {
   }
 }
 
-/// Quantity selector with – / + and a tap-to-pick wheel.
+// Quantity selector with – / + and a tap-to-pick wheel.
 class QuantitySelector extends StatefulWidget {
   final int value;
   final int min;
@@ -163,7 +198,6 @@ class _QuantitySelectorState extends State<QuantitySelector> {
   @override
   void didUpdateWidget(covariant QuantitySelector oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If parent changes value/min/max, keep us in sync
     final next = widget.value.clamp(widget.min, widget.max);
     if (next != _value) _value = next;
     if (_value > widget.max) _value = widget.max;
@@ -269,7 +303,7 @@ class _QuantitySelectorState extends State<QuantitySelector> {
 }
 // Checkout page form widgets
 
-// Compact key–value row (e.g., Order # / Date / Payment).
+// Compact key–value row
 class KeyValueRow extends StatelessWidget {
   final String label;
   final String value;
@@ -313,7 +347,7 @@ class SectionTitle extends StatelessWidget {
   }
 }
 
-// Price chip/pill (“LKR 500”) used in summaries and receipts.
+// Price pill
 class PricePill extends StatelessWidget {
   final String text;
   const PricePill(this.text, {super.key});
@@ -336,7 +370,7 @@ class PricePill extends StatelessWidget {
   }
 }
 
-// Light-weight summary line model for UI lists.
+// Light-weight summary line
 class SummaryLine {
   final String title;
   final int qty;
@@ -349,7 +383,7 @@ class SummaryLine {
   int get lineTotal => qty * unitPrice;
 }
 
-// Itemized summary card (list of lines + total). Reused on Checkout & Receipt.
+// Itemized summary card
 class ItemsSummaryCard extends StatelessWidget {
   final List<SummaryLine> lines;
   final int total;
