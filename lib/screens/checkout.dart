@@ -188,7 +188,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     // Delivery
                     const SectionTitle('Delivery'),
                     DropdownButtonFormField<DeliveryOption>(
-                      value: _delivery,
+                      initialValue: _delivery,
                       decoration: const InputDecoration(
                         labelText: 'Deliver to',
                       ),
