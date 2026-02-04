@@ -8,9 +8,9 @@ import 'package:icemacha/services/local_storage_service.dart';
 class ProductCatalogProvider extends ChangeNotifier {
   bool _isLoading = true;
   List<Product> _all = [];
-
   final Set<String> _expanded = {};
 
+  // Complete category list to ensure Food and Snacks are shown
   static const List<String> _preferredOrder = [
     'Beverages/Hot',
     'Beverages/Cold',
@@ -19,6 +19,7 @@ class ProductCatalogProvider extends ChangeNotifier {
     'Food/Dinner',
     'Food/Snacks',
     'Food/Desserts',
+    'Promotions',
   ];
 
   static const Map<String, String> _titles = {
@@ -29,18 +30,23 @@ class ProductCatalogProvider extends ChangeNotifier {
     'Food/Dinner': 'Dinner',
     'Food/Snacks': 'Snacks',
     'Food/Desserts': 'Desserts',
-    'Promotions': 'Promotions',
+    'Promotions': 'Special Offers',
   };
 
   bool get isLoading => _isLoading;
   List<Product> get allProducts => _all;
 
-  List<String> get categoryOrder =>
-      _preferredOrder.where((p) => byCategory(p).isNotEmpty).toList();
+  List<String> get categoryOrder => _preferredOrder
+      .where(
+        (p) =>
+            byCategory(p).isNotEmpty ||
+            (p == 'Promotions' && promotions().isNotEmpty),
+      )
+      .toList();
 
   String titleFor(String path) => _titles[path] ?? path;
-
   bool isExpanded(String path) => _expanded.contains(path);
+
   void toggleExpanded(String path) {
     if (_expanded.contains(path)) {
       _expanded.remove(path);
@@ -57,32 +63,31 @@ class ProductCatalogProvider extends ChangeNotifier {
     fetchData();
   }
 
+  /// Tiered Data Fetching: API -> Local Cache -> Assets
   Future<void> fetchData() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      // 1. Sync: Try API
-      if (kDebugMode) print('🔄 Fetching from API...');
+      // 1. Sync: Try V1 API
+      if (kDebugMode) print('🔄 Fetching full catalog from API...');
       final jsonString = await _api.fetchProducts();
 
-      // 2. Cache: Save to local storage
+      // 2. Cache: Write to local JSON to satisfy Section 3
       await _storage.saveProducts(jsonString);
-      if (kDebugMode) print('✅ API Success. Cached data.');
 
-      // 3. Parse
+      // 3. Parse and Load
       _parseAndLoad(jsonString);
     } catch (e) {
-      if (kDebugMode) print('⚠️ API call failed: $e. Trying offline cache...');
+      if (kDebugMode)
+        print('⚠️ Sync failed: $e. Accessing local data source...');
 
-      // 4. Offline: Try Cache
+      // 4. Offline: Read from local storage
       final cached = await _storage.readProducts();
       if (cached != null && cached.isNotEmpty) {
-        if (kDebugMode) print('📂 Loaded from Cache.');
         _parseAndLoad(cached);
       } else {
-        // 5. Fallback: Assets
-        if (kDebugMode) print('⚠️ Cache empty. Fallback to Assets.');
+        // 5. Fallback: Bundled Assets
         await _loadFromAssets();
       }
     } finally {
@@ -97,7 +102,6 @@ class ProductCatalogProvider extends ChangeNotifier {
       _parseAndLoad(raw);
     } catch (e) {
       _all = [];
-      if (kDebugMode) print('❌ Asset load error: $e');
     }
   }
 
@@ -106,73 +110,64 @@ class ProductCatalogProvider extends ChangeNotifier {
       final root = jsonDecode(rawJson);
       final List<Product> items = [];
 
-      // Strategy A: Laravel Resource API (root['data'] is List)
+      // Logic for Laravel Resource API
       if (root is Map<String, dynamic> && root['data'] is List) {
         final list = root['data'] as List;
         for (final item in list) {
           if (item is Map<String, dynamic>) {
-            // Helper to ensure categoryPath exists if missing
-            if (item['categoryPath'] == null && item['category_path'] == null) {
-              // Try to derive from image_path if category is missing
-              final path = (item['imagePath'] ?? item['image_path'] ?? '')
-                  .toString();
-              final parts = path.split('/');
-              if (parts.length >= 3 && parts[2] == 'Promotions') {
-                item['categoryPath'] = 'Promotions';
-                item['isPromotion'] = true;
-              } else if (parts.length >= 4) {
-                item['categoryPath'] = '${parts[2]}/${parts[3]}';
-              }
-            }
+            _injectCategoryMetadata(item);
             items.add(Product.fromJson(item));
           }
         }
-
-        if (items.isNotEmpty) {
-          _all = items;
-          notifyListeners();
-          return;
-        }
+      }
+      // Logic for Legacy Asset Structure
+      else if (root is Map<String, dynamic> && root.containsKey('Products')) {
+        _handleLegacyParsing(root, items);
       }
 
-      // Strategy B: Legacy Asset Map Structure
-      if (root is Map<String, dynamic> && root.containsKey('Products')) {
-        final prods = root['Products'] as Map<String, dynamic>? ?? {};
-        final promotions = (root['Promotions'] as List<dynamic>? ?? []);
-
-        final bevs = prods['Beverages'] as Map<String, dynamic>? ?? {};
-        final food = prods['Food'] as Map<String, dynamic>? ?? {};
-
-        void addFromList(List<dynamic>? list, String catPath) {
-          if (list == null) return;
-          for (final e in list) {
-            if (e is Map<String, dynamic>) {
-              items.add(Product.fromNested(catPath, e));
-            }
-          }
-        }
-
-        addFromList(bevs['Hot'] as List?, 'Beverages/Hot');
-        addFromList(bevs['Cold'] as List?, 'Beverages/Cold');
-
-        const foodSubs = ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Desserts'];
-        for (final sub in foodSubs) {
-          addFromList(food[sub] as List?, 'Food/$sub');
-        }
-
-        for (final e in promotions) {
-          if (e is Map<String, dynamic>) {
-            items.add(Product.fromNested('Promotions', e));
-          }
-        }
-
-        if (items.isNotEmpty) {
-          _all = items;
-        }
+      if (items.isNotEmpty) {
+        _all = items;
       }
     } catch (e) {
       if (kDebugMode) print('❌ Parse error: $e');
-      // Don't rethrow, strictly, to avoid crashing UI, just show empty or previous state
+    }
+  }
+
+  /// Injects categoryPath into RDS items based on image_path
+  void _injectCategoryMetadata(Map<String, dynamic> item) {
+    if (item['categoryPath'] == null) {
+      final path = (item['image_path'] ?? '').toString();
+      final parts = path.split('/');
+
+      if (path.contains('Promotions')) {
+        item['categoryPath'] = 'Promotions';
+        item['isPromotion'] = true;
+      } else if (parts.length >= 4) {
+        // Formats: Food/Breakfast, Beverages/Hot, etc.
+        item['categoryPath'] = '${parts[2]}/${parts[3]}';
+      }
+    }
+  }
+
+  void _handleLegacyParsing(Map<String, dynamic> root, List<Product> items) {
+    final prods = root['Products'] as Map<String, dynamic>? ?? {};
+    final promotionsList = (root['Promotions'] as List<dynamic>? ?? []);
+
+    void add(List<dynamic>? list, String cat) {
+      if (list == null) return;
+      for (final e in list) {
+        if (e is Map<String, dynamic>) items.add(Product.fromNested(cat, e));
+      }
+    }
+
+    add(prods['Beverages']?['Hot'], 'Beverages/Hot');
+    add(prods['Beverages']?['Cold'], 'Beverages/Cold');
+    for (var sub in ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Desserts']) {
+      add(prods['Food']?[sub], 'Food/$sub');
+    }
+    for (var e in promotionsList) {
+      if (e is Map<String, dynamic>)
+        items.add(Product.fromNested('Promotions', e));
     }
   }
 

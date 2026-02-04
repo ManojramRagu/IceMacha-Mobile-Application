@@ -17,52 +17,69 @@ class Product {
     required this.isPromotion,
   });
 
+  /// Dynamically resolves the image URL from CloudFront
   String get imageUrl {
+    if (imagePath.isEmpty) return "";
     if (imagePath.startsWith('http')) return imagePath;
 
-    if (imagePath.startsWith('storage/') || imagePath.startsWith('img/')) {
-      return 'https://d36bnb8wo21edh.cloudfront.net/$imagePath';
-    }
+    // Base CloudFront domain
+    const String baseUrl = "https://d36bnb8wo21edh.cloudfront.net";
 
-    // Default fallback or if it doesn't match expected prefixes,
-    // assuming it might be a relative path needing the domain or just return as is?
-    // Given the prompt: "Example: img/products/xyz.webp becomes https://.../img/products/xyz.webp"
-    // It implies we should prepend.
-    return 'https://d36bnb8wo21edh.cloudfront.net/$imagePath';
+    // Handles both 'img/products/...' and 'storage/products/...'
+    final cleanPath = imagePath.startsWith('/')
+        ? imagePath.substring(1)
+        : imagePath;
+
+    return "$baseUrl/$cleanPath";
   }
 
   factory Product.fromJson(Map<String, dynamic> j) {
-    // Parse Price "LKR 500.00" -> 500
+    // 1. Parse Price from "LKR 500.00" string
     int parsedPrice = 0;
     if (j['price'] != null) {
-      final pStr = j['price']
-          .toString()
-          .replaceAll('LKR', '')
-          .replaceAll(',', '')
-          .trim();
+      // Regex strips "LKR" and spaces to leave "500.00"
+      final pStr = j['price'].toString().replaceAll(RegExp(r'[^0-9.]'), '');
       parsedPrice = double.tryParse(pStr)?.round() ?? 0;
     }
 
+    // 2. Determine if it's a Promotion based on path or category_id
+    // In your RDS, category_id 1 is Beverages, 2 is Food
+    final path = (j['image_path'] ?? j['imagePath'] ?? '').toString();
+    final bool promoStatus =
+        (j['isPromotion'] as bool?) ?? path.contains('Promotions');
+
     return Product(
       id: (j['id'] ?? '').toString(),
-      title: (j['title'] ?? j['name'] ?? 'Unknown').toString(),
-      categoryPath: (j['categoryPath'] ?? 'Other').toString(),
+      // Maps 'name' from RDS JSON to 'title' in the app
+      title: (j['name'] ?? j['title'] ?? 'Unknown Item').toString(),
+      // Maps 'category_id' to path if categoryPath is missing
+      categoryPath:
+          (j['categoryPath'] ?? (j['category_id'] == 2 ? 'Food' : 'Beverages'))
+              .toString(),
       price: parsedPrice,
-      imagePath: (j['imagePath'] ?? j['image_path'] ?? '').toString(),
+      imagePath: path,
       description: (j['description'] as String?) ?? '',
-      isPromotion: (j['isPromotion'] as bool?) ?? false,
+      isPromotion: promoStatus,
     );
   }
 
+  // Maintains compatibility with your legacy local asset loading
   factory Product.fromNested(String categoryPath, Map<String, dynamic> j) =>
       Product(
-        id: j['id'] as String,
-        title: j['title'] as String,
+        id: j['id'].toString(),
+        title: (j['title'] ?? j['name'] ?? 'Unknown').toString(),
         categoryPath: categoryPath,
-        price: (j['price'] as num).round(),
-        imagePath: j['imagePath'] as String,
+        price: (j['price'] is num)
+            ? (j['price'] as num).round()
+            : (double.tryParse(
+                    j['price'].toString().replaceAll(RegExp(r'[^0-9.]'), ''),
+                  )?.round() ??
+                  0),
+        imagePath: (j['imagePath'] ?? j['image_path'] ?? '').toString(),
         description: (j['description'] as String?) ?? '',
-        isPromotion: categoryPath == 'Promotions',
+        isPromotion:
+            categoryPath == 'Promotions' ||
+            (j['isPromotion'] as bool? ?? false),
       );
 
   Map<String, dynamic> toJson() => {
