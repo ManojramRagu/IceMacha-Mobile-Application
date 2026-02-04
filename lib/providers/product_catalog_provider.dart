@@ -96,7 +96,7 @@ class ProductCatalogProvider extends ChangeNotifier {
       final combinedJsonString = jsonEncode(mergedData);
 
       // 3. Write: Cache merged data
-      await _storage.saveData('products_cache.json', combinedJsonString);
+      await _storage.saveJson(combinedJsonString);
       if (kDebugMode) print('💾 Cached merged products to local storage');
 
       // 4. Parse and Load
@@ -107,7 +107,7 @@ class ProductCatalogProvider extends ChangeNotifier {
       }
       // 5. Read: Try Cache (which now contains merged data from previous runs)
       try {
-        final cached = await _storage.readData('products_cache.json');
+        final cached = await _storage.readJson();
         if (cached != null && cached.isNotEmpty) {
           if (kDebugMode) print('📂 Loaded products from Local Cache');
           _parseAndLoad(cached);
