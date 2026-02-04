@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:icemacha/models/product.dart';
 
@@ -46,10 +47,25 @@ class ProductCard extends StatelessWidget {
                 ),
                 child: SizedBox(
                   height: width,
-                  child: Image.asset(
-                    product.imagePath,
+                  child: CachedNetworkImage(
+                    imageUrl: product.imageUrl,
                     fit: BoxFit.cover,
                     width: double.infinity,
+                    placeholder: (context, url) => Container(
+                      color: cs.surfaceContainerHighest,
+                      child: const Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, _) => Image.asset(
+                      product.imagePath,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    ),
                   ),
                 ),
               ),
