@@ -2,20 +2,20 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class LocalStorageService {
-  Future<String> _getFilePath(String fileName) async {
+  Future<String> _getFilePath() async {
     final directory = await getApplicationDocumentsDirectory();
-    return '${directory.path}/$fileName';
+    return '${directory.path}/products_cache.json';
   }
 
-  Future<File> saveData(String fileName, String content) async {
-    final path = await _getFilePath(fileName);
+  Future<File> saveJson(String data) async {
+    final path = await _getFilePath();
     final file = File(path);
-    return file.writeAsString(content);
+    return file.writeAsString(data);
   }
 
-  Future<String?> readData(String fileName) async {
+  Future<String?> readJson() async {
     try {
-      final path = await _getFilePath(fileName);
+      final path = await _getFilePath();
       final file = File(path);
       if (await file.exists()) {
         return await file.readAsString();
