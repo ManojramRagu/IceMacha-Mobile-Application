@@ -186,75 +186,128 @@ class ProductCatalogProvider extends ChangeNotifier {
   void _parseAndLoad(String rawJson) {
     try {
       final root = jsonDecode(rawJson);
-      // Handle if root is List (API often returns list) vs Map (Assets structure)
-      // If API returns list, we might need to assume it's flat or restructure.
-      // For this assignment, assuming API follows structure OR we just parse.
-      // But typically API V1 returning "products" returns a list.
-      // Let's implement robust parsing.
-
-      Map<String, dynamic> prods;
-      List<dynamic> promotions = [];
-
-      if (root is Map<String, dynamic>) {
-        // Matches assets structure
-        prods = root['Products'] as Map<String, dynamic>? ?? {};
-        promotions = (root['Promotions'] as List<dynamic>? ?? [])
-            .cast<Map<String, dynamic>>();
-      } else {
-        // Assuming API returns something else, but without API spec,
-        // we risk breaking if we strict parse.
-        // However, the assets/data/products.json is the source of truth for the UI structure.
-        // If API returns a List, we can't map to "Beverages/Hot" without extra data.
-        // I'll stick to the existing parsing logic which expects the Map structure.
-        // If API returns plain list, it will fail here and go to catch -> fallback?
-        // No, because this is called in the Success block of API.
-        // If API returns List, jsonDecode returns List, casting to Map throws.
-        // This is fine, it will trigger catch block and fall back to cache/assets if API data is incompatible.
-        // Ideally API should return compatible structure.
-        throw FormatException('Unexpected JSON structure');
-      }
-
-      final bevs = prods['Beverages'] as Map<String, dynamic>? ?? {};
-      final food = prods['Food'] as Map<String, dynamic>? ?? {};
-
       final List<Product> items = [];
 
-      // Beverages
-      for (final e in (bevs['Hot'] as List<dynamic>? ?? [])) {
-        items.add(
-          Product.fromNested(
-            'Beverages/Hot',
-            (e as Map).cast<String, dynamic>(),
-          ),
-        );
-      }
-      for (final e in (bevs['Cold'] as List<dynamic>? ?? [])) {
-        items.add(
-          Product.fromNested(
-            'Beverages/Cold',
-            (e as Map).cast<String, dynamic>(),
-          ),
-        );
-      }
+      // 1. Handling API Response (Laravel Resource structure)
+      if (root is Map<String, dynamic> &&
+          root.containsKey('data') &&
+          root['data'] is List) {
+        final list = root['data'] as List;
+        for (final item in list) {
+          if (item is Map) {
+            // "image_path": "img/products/Beverages/Hot/Americano.webp"
+            final imagePath = item['image_path'] as String? ?? '';
+            final parts = imagePath.split('/');
 
-      // Food
-      const foodSubs = ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Desserts'];
-      for (final sub in foodSubs) {
-        for (final e in (food[sub] as List<dynamic>? ?? [])) {
-          items.add(
-            Product.fromNested('Food/$sub', (e as Map).cast<String, dynamic>()),
-          );
+            String catPath = 'Other';
+            bool isPromo = false;
+
+            // Check if it's a promotion
+            if (parts.length >= 3 && parts[2] == 'Promotions') {
+              catPath = 'Promotions';
+              isPromo = true;
+            }
+            // Check for standard Category/SubCategory structure
+            else if (parts.length >= 4) {
+              catPath = '${parts[2]}/${parts[3]}';
+            }
+
+            // Parse Price "LKR 500.00" -> 500
+            int price = 0;
+            if (item['price'] != null) {
+              final pStr = item['price']
+                  .toString()
+                  .replaceAll('LKR', '')
+                  .replaceAll(',', '')
+                  .trim();
+              price = double.tryParse(pStr)?.round() ?? 0;
+            }
+
+            items.add(
+              Product(
+                id: item['id'].toString(),
+                title: item['name'] as String? ?? 'Unknown',
+                categoryPath: catPath,
+                price: price,
+                imagePath: imagePath,
+                description: item['description'] as String? ?? '',
+                isPromotion: isPromo,
+              ),
+            );
+          }
+        }
+
+        // If API returned items, use them
+        if (items.isNotEmpty) {
+          _all = items;
+          notifyListeners();
+          return;
         }
       }
 
-      // Promotions
-      for (final e in promotions) {
-        items.add(Product.fromNested('Promotions', e));
-      }
+      // 2. Handling Assets Response (Legacy Map structure)
+      if (root is Map<String, dynamic>) {
+        Map<String, dynamic> prods = {};
+        List<dynamic> promotions = [];
 
-      _all = items;
+        if (root.containsKey('Products')) {
+          prods = root['Products'] as Map<String, dynamic>? ?? {};
+          promotions = (root['Promotions'] as List<dynamic>? ?? [])
+              .cast<Map<String, dynamic>>();
+        }
+
+        // Only parse if we found the structure, otherwise loop will be empty
+        // ... (Existing parsing logic) ...
+
+        final bevs = prods['Beverages'] as Map<String, dynamic>? ?? {};
+        final food = prods['Food'] as Map<String, dynamic>? ?? {};
+
+        // Beverages
+        for (final e in (bevs['Hot'] as List<dynamic>? ?? [])) {
+          items.add(
+            Product.fromNested(
+              'Beverages/Hot',
+              (e as Map).cast<String, dynamic>(),
+            ),
+          );
+        }
+        for (final e in (bevs['Cold'] as List<dynamic>? ?? [])) {
+          items.add(
+            Product.fromNested(
+              'Beverages/Cold',
+              (e as Map).cast<String, dynamic>(),
+            ),
+          );
+        }
+
+        // Food
+        const foodSubs = ['Breakfast', 'Lunch', 'Dinner', 'Snacks', 'Desserts'];
+        for (final sub in foodSubs) {
+          for (final e in (food[sub] as List<dynamic>? ?? [])) {
+            items.add(
+              Product.fromNested(
+                'Food/$sub',
+                (e as Map).cast<String, dynamic>(),
+              ),
+            );
+          }
+        }
+
+        // Promotions
+        for (final e in promotions) {
+          items.add(Product.fromNested('Promotions', e));
+        }
+
+        // If we found items using this method, update _all.
+        // Even if empty, if the structure matched, we might set it to empty.
+        // But for safety, let's strictly set if items found OR if we explicitly read assets.
+        // Actually, if falling back to assets and assets are empty, allow empty.
+        if (items.isNotEmpty || root.containsKey('Products')) {
+          _all = items;
+        }
+      }
     } catch (e) {
-      // if parsing fails, rethrow to trigger fallback in fetchData
+      if (kDebugMode) print('Parse error: $e');
       rethrow;
     }
   }
