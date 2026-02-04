@@ -64,26 +64,30 @@ class ProductCatalogProvider extends ChangeNotifier {
     try {
       // 1. Sync: Try API
       final jsonString = await _api.fetchProducts();
+      if (kDebugMode) print('✅ Loaded products from API');
       // 2. Write: Cache to file
       await _storage.saveData('products_cache.json', jsonString);
+      if (kDebugMode) print('💾 Cached products to local storage');
       // Parse
       _parseAndLoad(jsonString);
     } catch (e) {
       if (kDebugMode) {
-        print('API load failed: $e. Trying cache...');
+        print('⚠️ API load failed: $e. Trying cache...');
       }
       // 3. Read: Try Cache
       try {
         final cached = await _storage.readData('products_cache.json');
         if (cached != null && cached.isNotEmpty) {
+          if (kDebugMode) print('📂 Loaded products from Local Cache');
           _parseAndLoad(cached);
         } else {
           // 4. Fallback: Try Assets
+          if (kDebugMode) print('⚠️ Cache empty. Falling back to Assets');
           await _loadFromAssets();
         }
       } catch (e2) {
         if (kDebugMode) {
-          print('Cache load failed: $e2. Loading assets...');
+          print('⚠️ Cache load failed: $e2. Loading assets...');
         }
         await _loadFromAssets();
       }
