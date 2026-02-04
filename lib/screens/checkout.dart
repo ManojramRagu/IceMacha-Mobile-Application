@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:icemacha/widgets/form.dart';
 import 'package:icemacha/utils/validation.dart';
 import 'package:icemacha/utils/input_formatters.dart';
-import 'package:icemacha/utils/cart_provider.dart';
+import 'package:icemacha/providers/cart_provider.dart';
 import 'package:icemacha/screens/order_placed.dart';
 
 enum PaymentMethod { cash, card }

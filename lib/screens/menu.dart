@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:icemacha/utils/product.dart';
-import 'package:icemacha/utils/product_catalog_provider.dart';
-import 'package:icemacha/utils/cart_provider.dart';
+import 'package:icemacha/models/product.dart';
+import 'package:icemacha/providers/product_catalog_provider.dart';
+import 'package:icemacha/providers/cart_provider.dart';
 import 'package:icemacha/widgets/menu_section.dart';
 import 'package:icemacha/screens/item.dart';
 

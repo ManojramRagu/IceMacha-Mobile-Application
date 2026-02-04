@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:icemacha/utils/product.dart';
+import 'package:icemacha/models/product.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:icemacha/utils/auth_provider.dart';
+import 'package:icemacha/providers/auth_provider.dart';
 import 'package:icemacha/widgets/form.dart';
 import 'package:icemacha/screens/auth/login.dart';
 import 'package:icemacha/screens/auth/register.dart';
@@ -8,7 +8,7 @@ import 'package:icemacha/screens/auth/user_profile.dart';
 import 'package:icemacha/screens/auth/edit_profile.dart';
 import 'package:icemacha/screens/about.dart';
 import 'package:icemacha/screens/contact.dart';
-import 'package:icemacha/utils/theme_provider.dart';
+import 'package:icemacha/providers/theme_provider.dart';
 import 'package:icemacha/core/responsive.dart';
 
 enum _Mode { login, register }

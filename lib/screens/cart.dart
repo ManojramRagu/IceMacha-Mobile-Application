@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:icemacha/screens/checkout.dart';
-import 'package:icemacha/utils/cart_provider.dart';
+import 'package:icemacha/providers/cart_provider.dart';
 import 'package:icemacha/widgets/form.dart';
 import 'package:icemacha/core/responsive.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:icemacha/utils/cart_provider.dart';
+import 'package:icemacha/providers/cart_provider.dart';
 
 // TOP NAVIGATION BAR
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {

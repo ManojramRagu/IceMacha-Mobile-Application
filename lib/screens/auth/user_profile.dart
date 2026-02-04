@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:icemacha/utils/auth_provider.dart';
+import 'package:icemacha/providers/auth_provider.dart';
 
 class UserProfile extends StatelessWidget {
   const UserProfile({super.key});

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:icemacha/core/theme.dart';
 import 'package:icemacha/core/shell.dart';
-import 'package:icemacha/utils/auth_provider.dart';
-import 'package:icemacha/utils/product_catalog_provider.dart';
-import 'package:icemacha/utils/cart_provider.dart';
-import 'package:icemacha/utils/theme_provider.dart';
+import 'package:icemacha/providers/auth_provider.dart';
+import 'package:icemacha/providers/product_catalog_provider.dart';
+import 'package:icemacha/providers/cart_provider.dart';
+import 'package:icemacha/providers/theme_provider.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
