@@ -25,14 +25,50 @@ class AuthProvider extends ChangeNotifier {
   String? get homeAddress => _homeAddress;
 
   Future<void> register({
+    required String name,
     required String email,
     required String password,
-    String? address,
+    required String passwordConfirmation,
+    required String deviceName,
   }) async {
-    _email = email.trim();
-    _displayName = null;
-    _homeAddress = (address ?? '').trim().isEmpty ? null : address!.trim();
-    notifyListeners();
+    try {
+      final response = await _api.register(
+        name: name,
+        email: email,
+        password: password,
+        passwordConfirmation: passwordConfirmation,
+        deviceName: deviceName,
+      );
+
+      // Assuming success response structure: { token: "...", user: { ... } }
+      // Or if the API just returns the token (Sanctum style for direct login, but register might differ)
+      // Usually Sanctum register returns the same as login if you structure it that way.
+      // Based on ApiService implementation, we return parsed JSON.
+      // Let's assume standard response containing token.
+
+      if (response.containsKey('token')) {
+        _token = response['token'];
+        _isAuthenticated = true;
+        _email = email.trim();
+        _displayName = name.trim();
+
+        // Save token
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', _token!);
+        await prefs.setString('auth_email', _email!);
+
+        notifyListeners();
+      } else {
+        // Should catch this in ApiService or here?
+        // ApiService throws on non-200. If 200/201 but no token?
+        throw Exception('Registration successful but no token received.');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Registration error: $e');
+      }
+      rethrow;
+    }
   }
 
   Future<bool> login({required String email, required String password}) async {
