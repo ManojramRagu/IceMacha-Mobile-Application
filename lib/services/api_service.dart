@@ -64,19 +64,17 @@ class ApiService {
     }
   }
 
-  Future<List<dynamic>> fetchProducts() async {
-    // Placeholder for fetchProducts implementation
-    // Eventually will call GET /v1/products
-    // final url = Uri.parse('$baseUrl/v1/products');
-    // final response = await http.get(url);
-    // if (response.statusCode == 200) {
-    //   return json.decode(response.body);
-    // } else {
-    //   throw Exception('Failed to load products');
-    // }
+  Future<String> fetchProducts() async {
+    final url = Uri.parse('$baseUrl/v1/products');
+    final response = await http.get(
+      url,
+      headers: {'Accept': 'application/json'},
+    );
 
-    // For now, return empty list
-    await Future.delayed(const Duration(seconds: 1));
-    return [];
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception('Failed to load products: ${response.statusCode}');
+    }
   }
 }
