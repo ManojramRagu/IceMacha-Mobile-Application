@@ -64,6 +64,47 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> register({
+    required String name,
+    required String email,
+    required String password,
+    required String passwordConfirmation,
+    required String deviceName,
+  }) async {
+    final url = Uri.parse('$baseUrl/register');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({
+        'name': name,
+        'email': email,
+        'password': password,
+        'password_confirmation': passwordConfirmation,
+        'device_name': deviceName,
+      }),
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      String msg = 'Registration failed: ${response.statusCode}';
+      try {
+        final body = jsonDecode(response.body);
+        if (body is Map && body.containsKey('message')) {
+          msg = '$msg: ${body['message']}';
+        } else {
+          msg = '$msg ${response.body}';
+        }
+      } catch (_) {
+        msg = '$msg ${response.body}';
+      }
+      throw Exception(msg);
+    }
+  }
+
   Future<String> fetchProducts() async {
     final url = Uri.parse('$baseUrl/v1/products');
     final response = await http.get(
