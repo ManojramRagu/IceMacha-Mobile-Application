@@ -3,23 +3,54 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // Use 10.0.2.2 for Android Emulator to access localhost
-  static const String baseUrl = 'http://10.0.2.2:8000/api';
+  static const String baseUrl = 'https://d36bnb8wo21edh.cloudfront.net/api';
 
   ApiService();
 
-  Future<bool> login(String email, String password) async {
-    // Placeholder for login implementation
-    // Eventually will call POST /login
-    // final url = Uri.parse('$baseUrl/login');
-    // final response = await http.post(
-    //   url,
-    //   body: {'email': email, 'password': password},
-    // );
-    // return response.statusCode == 200;
+  Future<String> login(String email, String password, String deviceName) async {
+    final url = Uri.parse('$baseUrl/login');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        'device_name': deviceName,
+      }),
+    );
 
-    // For now, return true to simulate success
-    await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
-    return true;
+    if (response.statusCode == 200) {
+      // Assuming the token is returned directly as a string or in a JSON object
+      // Laravel Sanctum usually returns just the token string if configured simply,
+      // or a JSON object like { "token": "..." }
+      // The user instructions say "Implement a POST login method that sends email, password, and device_name."
+      // I'll assume standard Sanctum JSON return: { "token": "..." } or check if it's plaintext.
+      // Let's safe parse it.
+
+      // However, typical Sanctum tutorial return is often just the token string.
+      // But standard is JSON. Let's try to parse as JSON first.
+      try {
+        final data = jsonDecode(response.body);
+        // It might be data['token'] or just the string body.
+        // Let's assume standard response format: token
+        if (data is Map && data.containsKey('token')) {
+          return data['token'];
+        }
+        // If not a map with token, maybe the body IS the token?
+        // But safer to assume standard API response.
+        // Let's start with expecting a JSON with 'token' or 'access_token'.
+        if (data is String) return data; // Just in case
+        return response.body;
+      } catch (e) {
+        return response.body;
+      }
+    } else {
+      // Throw error to be caught by provider
+      throw Exception('Login failed: ${response.statusCode} ${response.body}');
+    }
   }
 
   Future<List<dynamic>> fetchProducts() async {

@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
 
-  bool _busy = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -43,33 +43,44 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    setState(() => _busy = true);
-    final ok = await context.read<AuthProvider>().login(
-      email: _email.text,
-      password: _password.text,
-    );
-    setState(() => _busy = false);
-    if (!mounted) return;
-
-    if (!ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Invalid email or password'),
-          behavior: SnackBarBehavior.floating,
-        ),
+    setState(() => _isLoading = true);
+    try {
+      await context.read<AuthProvider>().login(
+        email: _email.text,
+        password: _password.text,
       );
-      return;
-    }
+      if (!mounted) return;
+      // Success
+      setState(() => _isLoading = false);
+      widget.onLoggedIn();
 
-    widget.onLoggedIn();
+      final routeName = ModalRoute.of(context)?.settings.name;
+      final isStandalone =
+          routeName == '/login' || !Navigator.of(context).canPop();
+      if (isStandalone) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const AppShell(initialTabIndex: 0)),
+          (r) => false,
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
 
-    final routeName = ModalRoute.of(context)?.settings.name;
-    final isStandalone =
-        routeName == '/login' || !Navigator.of(context).canPop();
-    if (isStandalone) {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const AppShell(initialTabIndex: 0)),
-        (r) => false,
+      String message = 'An unexpected error occurred';
+      final errStr = e.toString();
+      if (errStr.contains('401')) {
+        message = 'Invalid email or password';
+      } else if (errStr.contains('422')) {
+        message = 'Please check your input data';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
     }
   }
@@ -134,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Align(
                             alignment: Alignment.centerRight,
                             child: PrimaryBusyButton(
-                              busy: _busy,
+                              busy: _isLoading,
                               label: 'Sign in',
                               busyLabel: 'Signing in…',
                               icon: Icons.login,
