@@ -7,13 +7,13 @@ class LocalStorageService {
     return '${directory.path}/products_cache.json';
   }
 
-  Future<File> saveJson(String data) async {
+  Future<File> saveProducts(String json) async {
     final path = await _getFilePath();
     final file = File(path);
-    return file.writeAsString(data);
+    return file.writeAsString(json);
   }
 
-  Future<String?> readJson() async {
+  Future<String?> readProducts() async {
     try {
       final path = await _getFilePath();
       final file = File(path);
@@ -23,7 +23,7 @@ class LocalStorageService {
       return null;
     } catch (e) {
       // In a real app, you might use a logging service here
-      print('Error reading file: $e');
+      print('Error reading product cache: $e');
       return null;
     }
   }
