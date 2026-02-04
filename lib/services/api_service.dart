@@ -69,7 +69,8 @@ class ApiService {
     required String email,
     required String password,
     required String passwordConfirmation,
-    required String deviceName,
+    String? address,
+    String? phoneNumber,
   }) async {
     final url = Uri.parse('$baseUrl/register');
     final response = await http.post(
@@ -83,7 +84,9 @@ class ApiService {
         'email': email,
         'password': password,
         'password_confirmation': passwordConfirmation,
-        'device_name': deviceName,
+        'role': 'user',
+        'address': address,
+        'phone_number': phoneNumber,
       }),
     );
 

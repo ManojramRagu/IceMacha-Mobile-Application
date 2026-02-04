@@ -27,6 +27,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+  final _phone = TextEditingController();
+  final _address = TextEditingController();
 
   bool _busy = false;
 
@@ -36,6 +38,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _email.dispose();
     _password.dispose();
     _confirm.dispose();
+    _phone.dispose();
+    _address.dispose();
     super.dispose();
   }
 
@@ -53,8 +57,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email: _email.text,
         password: _password.text,
         passwordConfirmation: _confirm.text,
-        deviceName:
-            'mobile_app', // You might want to use a device info package later
+        address: _address.text,
+        phone: _phone.text,
       );
 
       if (!mounted) return;
@@ -147,10 +151,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ]),
                           ),
                           const SizedBox(height: 12),
+                          const SizedBox(height: 12),
                           PasswordField(
                             controller: _confirm,
                             label: 'Confirm password',
-                            textInputAction: TextInputAction.done,
+                            textInputAction: TextInputAction.next,
                             validator: Validators.compose([
                               Validators.required('Confirm password'),
                               Validators.match(
@@ -158,6 +163,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 message: 'Passwords do not match',
                               ),
                             ]),
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _phone,
+                            textInputAction: TextInputAction.next,
+                            keyboardType: TextInputType.phone,
+                            decoration: const InputDecoration(
+                              labelText: 'Phone Number (optional)',
+                              hintText: '+94 77 123 4567',
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _address,
+                            maxLines: 2,
+                            textInputAction: TextInputAction.done,
+                            decoration: const InputDecoration(
+                              labelText: 'Address (optional)',
+                              hintText: 'e.g., 23 Flower Rd, Colombo 7',
+                            ),
                           ),
                           const SizedBox(height: 12),
                           Align(

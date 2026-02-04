@@ -29,7 +29,8 @@ class AuthProvider extends ChangeNotifier {
     required String email,
     required String password,
     required String passwordConfirmation,
-    required String deviceName,
+    String? address,
+    String? phone,
   }) async {
     try {
       final response = await _api.register(
@@ -37,7 +38,9 @@ class AuthProvider extends ChangeNotifier {
         email: email,
         password: password,
         passwordConfirmation: passwordConfirmation,
-        deviceName: deviceName,
+        address: address, // Passing optional address
+        phoneNumber: phone, // Passing optional phone as 'phoneNumber'
+        // deviceName removed
       );
 
       // Assuming success response structure: { token: "...", user: { ... } }
