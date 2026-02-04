@@ -17,6 +17,11 @@ class Product {
     required this.isPromotion,
   });
 
+  String get imageUrl {
+    if (imagePath.startsWith('http')) return imagePath;
+    return 'https://d36bnb8wo21edh.cloudfront.net/storage/$imagePath';
+  }
+
   factory Product.fromJson(Map<String, dynamic> j) => Product(
     id: j['id'] as String,
     title: j['title'] as String,
