@@ -6,8 +6,22 @@ import 'package:icemacha/providers/cart_provider.dart';
 import 'package:icemacha/widgets/menu_section.dart';
 import 'package:icemacha/screens/item.dart';
 
-class MenuScreen extends StatelessWidget {
+class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
+
+  @override
+  State<MenuScreen> createState() => _MenuScreenState();
+}
+
+class _MenuScreenState extends State<MenuScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Ensure data is fetched when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProductCatalogProvider>().fetchData();
+    });
+  }
 
   void _openItem(BuildContext context, Product p) {
     Navigator.of(

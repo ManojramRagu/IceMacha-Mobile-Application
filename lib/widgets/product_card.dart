@@ -61,11 +61,31 @@ class ProductCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    errorWidget: (context, url, _) => Image.asset(
-                      product.imagePath,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                    ),
+                    errorWidget: (context, url, error) {
+                      // Fallback logic
+                      var assetPath = product.imagePath;
+                      if (!assetPath.startsWith('assets/')) {
+                        // Assuming legacy or new paths are relative to assets/img if not absolute
+                        // Note: For 'products/...' paths, this becomes 'assets/img/products/...' which likely matches local structure.
+                        assetPath = 'assets/img/$assetPath';
+                      }
+
+                      return Image.asset(
+                        assetPath,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        errorBuilder: (context, error, stackTrace) {
+                          // Ultimate fallback if even asset is missing
+                          return Container(
+                            color: Colors.grey[200],
+                            child: const Icon(
+                              Icons.broken_image,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
               ),
