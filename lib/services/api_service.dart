@@ -77,4 +77,19 @@ class ApiService {
       throw Exception('Failed to load products: ${response.statusCode}');
     }
   }
+
+  Future<String> fetchExternalData(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        return response.body;
+      }
+      throw Exception('Failed to load external data: ${response.statusCode}');
+    } catch (e) {
+      // Log error but don't crash app flow usually
+      print('External fetch error: $e');
+      rethrow;
+    }
+  }
 }

@@ -57,31 +57,62 @@ class ProductCatalogProvider extends ChangeNotifier {
     fetchData();
   }
 
+  static const String _externalDataUrl =
+      'https://d36bnb8wo21edh.cloudfront.net/api/v1/products';
+
   Future<void> fetchData() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      // 1. Sync: Try API
-      final jsonString = await _api.fetchProducts();
-      if (kDebugMode) print('✅ Loaded products from API');
-      // 2. Write: Cache to file
-      await _storage.saveData('products_cache.json', jsonString);
-      if (kDebugMode) print('💾 Cached products to local storage');
-      // Parse
-      _parseAndLoad(jsonString);
+      // 1. Sync: Fetch Main API
+      final mainJsonString = await _api.fetchProducts();
+      if (kDebugMode) print('✅ Loaded main products from API');
+
+      Map<String, dynamic> mergedData;
+      try {
+        mergedData = jsonDecode(mainJsonString) as Map<String, dynamic>;
+      } catch (e) {
+        throw FormatException('Main API returned invalid JSON: $e');
+      }
+
+      // 2. Sync: Fetch External Data (Best Attempt)
+      try {
+        final externalJsonString = await _api.fetchExternalData(
+          _externalDataUrl,
+        );
+        if (kDebugMode) print('✅ Loaded external data from URL');
+
+        final externalData = jsonDecode(externalJsonString);
+        if (externalData is Map<String, dynamic>) {
+          _mergeExternalData(mergedData, externalData);
+        }
+      } catch (e) {
+        if (kDebugMode) print('⚠️ External data fetch failed: $e');
+        // Continue with just main data
+      }
+
+      // Re-serialize for cache
+      final combinedJsonString = jsonEncode(mergedData);
+
+      // 3. Write: Cache merged data
+      await _storage.saveData('products_cache.json', combinedJsonString);
+      if (kDebugMode) print('💾 Cached merged products to local storage');
+
+      // 4. Parse and Load
+      _parseAndLoad(combinedJsonString);
     } catch (e) {
       if (kDebugMode) {
         print('⚠️ API load failed: $e. Trying cache...');
       }
-      // 3. Read: Try Cache
+      // 5. Read: Try Cache (which now contains merged data from previous runs)
       try {
         final cached = await _storage.readData('products_cache.json');
         if (cached != null && cached.isNotEmpty) {
           if (kDebugMode) print('📂 Loaded products from Local Cache');
           _parseAndLoad(cached);
         } else {
-          // 4. Fallback: Try Assets
+          // 6. Fallback: Assets
           if (kDebugMode) print('⚠️ Cache empty. Falling back to Assets');
           await _loadFromAssets();
         }
@@ -94,6 +125,49 @@ class ProductCatalogProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  void _mergeExternalData(
+    Map<String, dynamic> main,
+    Map<String, dynamic> external,
+  ) {
+    // Basic merge strategy:
+    // Append external 'Promotions' to main 'Promotions'
+    // Append external 'Products' sub-categories to main 'Products' sub-categories
+
+    // 1. Merge Promotions
+    if (external.containsKey('Promotions') && external['Promotions'] is List) {
+      final mainPromos = (main['Promotions'] as List<dynamic>? ?? []);
+      mainPromos.addAll(external['Promotions'] as List<dynamic>);
+      main['Promotions'] = mainPromos;
+    }
+
+    // 2. Merge Products
+    if (external.containsKey('Products') && external['Products'] is Map) {
+      final extProds = external['Products'] as Map<String, dynamic>;
+      final mainProds = main['Products'] as Map<String, dynamic>? ?? {};
+
+      // Helper to merge categories (e.g., Beverages, Food)
+      void mergeCategory(String catName) {
+        if (extProds.containsKey(catName) && extProds[catName] is Map) {
+          final extCat = extProds[catName] as Map<String, dynamic>;
+          final mainCat = mainProds[catName] as Map<String, dynamic>? ?? {};
+
+          for (final subCatKey in extCat.keys) {
+            if (extCat[subCatKey] is List) {
+              final mainSubList = (mainCat[subCatKey] as List<dynamic>? ?? []);
+              mainSubList.addAll(extCat[subCatKey] as List<dynamic>);
+              mainCat[subCatKey] = mainSubList;
+            }
+          }
+          mainProds[catName] = mainCat;
+        }
+      }
+
+      mergeCategory('Beverages');
+      mergeCategory('Food');
+      main['Products'] = mainProds;
     }
   }
 
