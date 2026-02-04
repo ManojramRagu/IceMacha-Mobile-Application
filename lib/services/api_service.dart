@@ -48,8 +48,19 @@ class ApiService {
         return response.body;
       }
     } else {
-      // Throw error to be caught by provider
-      throw Exception('Login failed: ${response.statusCode} ${response.body}');
+      // Try to parse server error message
+      String msg = 'Login failed: ${response.statusCode}';
+      try {
+        final body = jsonDecode(response.body);
+        if (body is Map && body.containsKey('message')) {
+          msg = '$msg: ${body['message']}';
+        } else {
+          msg = '$msg ${response.body}';
+        }
+      } catch (_) {
+        msg = '$msg ${response.body}';
+      }
+      throw Exception(msg);
     }
   }
 

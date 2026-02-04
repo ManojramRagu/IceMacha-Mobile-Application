@@ -68,11 +68,12 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = false);
 
       String message = 'An unexpected error occurred';
-      final errStr = e.toString();
-      if (errStr.contains('401')) {
+      final errStr = e.toString().toLowerCase();
+      if (errStr.contains('401') || errStr.contains('unauthenticated')) {
         message = 'Invalid email or password';
-      } else if (errStr.contains('422')) {
-        message = 'Please check your input data';
+      } else if (errStr.contains('422') ||
+          errStr.contains('count validation failed')) {
+        message = 'Invalid email or password';
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
