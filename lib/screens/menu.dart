@@ -61,8 +61,6 @@ class _MenuScreenState extends State<MenuScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final promos = catalog.promotions();
-
     String? lastGroup;
     List<Widget> buildSections() {
       final widgets = <Widget>[];
@@ -136,28 +134,6 @@ class _MenuScreenState extends State<MenuScreen> {
             const SizedBox(height: 8),
 
             ...buildSections(),
-
-            if (promos.isNotEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
-                child: Text(
-                  'Promotions',
-                  style: tt.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: cs.tertiary,
-                  ),
-                ),
-              ),
-              MenuSection(
-                key: const ValueKey('Promotions'),
-                title: 'Limited',
-                products: promos,
-                expanded: catalog.isExpanded('Promotions'),
-                onToggleExpand: () => catalog.toggleExpanded('Promotions'),
-                onSelect: (p) => _openItem(context, p),
-                onAdd: (p) => _addToCart(context, p),
-              ),
-            ],
 
             const SizedBox(height: 24),
           ],

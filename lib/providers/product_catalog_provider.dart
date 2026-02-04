@@ -36,13 +36,8 @@ class ProductCatalogProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   List<Product> get allProducts => _all;
 
-  List<String> get categoryOrder => _preferredOrder
-      .where(
-        (p) =>
-            byCategory(p).isNotEmpty ||
-            (p == 'Promotions' && promotions().isNotEmpty),
-      )
-      .toList();
+  List<String> get categoryOrder =>
+      _preferredOrder.where((p) => byCategory(p).isNotEmpty).toList();
 
   String titleFor(String path) => _titles[path] ?? path;
   bool isExpanded(String path) => _expanded.contains(path);
@@ -63,26 +58,26 @@ class ProductCatalogProvider extends ChangeNotifier {
     fetchData();
   }
 
-  /// Tiered Data Fetching: API -> Local Cache -> Assets
+  /// Tiered Data Fetching: API (RDS) -> Local Cache (JSON) -> Assets
   Future<void> fetchData() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      // 1. Sync: Try V1 API
-      if (kDebugMode) print('🔄 Fetching full catalog from API...');
+      // 1. Sync: Try V1 API (CloudFront)
+      if (kDebugMode) print('🔄 Fetching full catalog from AWS RDS...');
       final jsonString = await _api.fetchProducts();
 
-      // 2. Cache: Write to local JSON to satisfy Section 3
+      // 2. Cache: WRITE the dynamic data to satisfy Section 3
       await _storage.saveProducts(jsonString);
 
       // 3. Parse and Load
       _parseAndLoad(jsonString);
     } catch (e) {
       if (kDebugMode)
-        print('⚠️ Sync failed: $e. Accessing local data source...');
+        print('⚠️ API sync failed: $e. Accessing local data source...');
 
-      // 4. Offline: Read from local storage
+      // 4. Offline: READ from local storage
       final cached = await _storage.readProducts();
       if (cached != null && cached.isNotEmpty) {
         _parseAndLoad(cached);
@@ -110,7 +105,7 @@ class ProductCatalogProvider extends ChangeNotifier {
       final root = jsonDecode(rawJson);
       final List<Product> items = [];
 
-      // Logic for Laravel Resource API
+      // Logic for Laravel Resource API (root['data'] is the source)
       if (root is Map<String, dynamic> && root['data'] is List) {
         final list = root['data'] as List;
         for (final item in list) {
@@ -126,14 +121,14 @@ class ProductCatalogProvider extends ChangeNotifier {
       }
 
       if (items.isNotEmpty) {
-        _all = items;
+        _all = items; // Update with the fresh list of 52 items
       }
     } catch (e) {
       if (kDebugMode) print('❌ Parse error: $e');
     }
   }
 
-  /// Injects categoryPath into RDS items based on image_path
+  /// Injects categoryPath into RDS items based on image_path folders
   void _injectCategoryMetadata(Map<String, dynamic> item) {
     if (item['categoryPath'] == null) {
       final path = (item['image_path'] ?? '').toString();
@@ -143,8 +138,13 @@ class ProductCatalogProvider extends ChangeNotifier {
         item['categoryPath'] = 'Promotions';
         item['isPromotion'] = true;
       } else if (parts.length >= 4) {
-        // Formats: Food/Breakfast, Beverages/Hot, etc.
+        // Correctly maps 'img/products/Food/Breakfast/...' to 'Food/Breakfast'
         item['categoryPath'] = '${parts[2]}/${parts[3]}';
+      } else {
+        // Fallback for items with shallow paths like 'storage/products/default.jpg'
+        item['categoryPath'] = (item['category_id'] == 2)
+            ? 'Food/Snacks'
+            : 'Beverages/Cold';
       }
     }
   }
@@ -171,9 +171,12 @@ class ProductCatalogProvider extends ChangeNotifier {
     }
   }
 
-  List<Product> byCategory(String path) =>
-      _all.where((p) => p.categoryPath == path && !p.isPromotion).toList();
+  /// Corrected logic to prevent infinite recursion and duplicate keys
+  List<Product> byCategory(String path) {
+    return _all.where((p) => p.categoryPath == path).toList();
+  }
 
-  List<Product> promotions() =>
-      _all.where((p) => p.categoryPath == 'Promotions').toList();
+  List<Product> promotions() => _all
+      .where((p) => p.categoryPath == 'Promotions' || p.isPromotion)
+      .toList();
 }
