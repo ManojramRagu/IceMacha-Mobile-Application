@@ -85,63 +85,69 @@ class MenuScreen extends StatelessWidget {
       return widgets;
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(0, 16, 0, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: Image.asset(
-                'assets/img/hero/menu.webp',
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Center(
-              child: Text(
-                'Menu',
-                style: tt.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: cs.primary,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          ...buildSections(),
-
-          if (promos.isNotEmpty) ...[
+    return RefreshIndicator(
+      onRefresh: () async {
+        await context.read<ProductCatalogProvider>().fetchData();
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(0, 16, 0, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
-              child: Text(
-                'Promotions',
-                style: tt.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: cs.tertiary,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.asset(
+                  'assets/img/hero/menu.webp',
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
-            MenuSection(
-              key: const ValueKey('Promotions'),
-              title: 'Limited',
-              products: promos,
-              expanded: catalog.isExpanded('Promotions'),
-              onToggleExpand: () => catalog.toggleExpanded('Promotions'),
-              onSelect: (p) => _openItem(context, p),
-              onAdd: (p) => _addToCart(context, p),
-            ),
-          ],
+            const SizedBox(height: 12),
 
-          const SizedBox(height: 24),
-        ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: Text(
+                  'Menu',
+                  style: tt.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: cs.primary,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            ...buildSections(),
+
+            if (promos.isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+                child: Text(
+                  'Promotions',
+                  style: tt.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: cs.tertiary,
+                  ),
+                ),
+              ),
+              MenuSection(
+                key: const ValueKey('Promotions'),
+                title: 'Limited',
+                products: promos,
+                expanded: catalog.isExpanded('Promotions'),
+                onToggleExpand: () => catalog.toggleExpanded('Promotions'),
+                onSelect: (p) => _openItem(context, p),
+                onAdd: (p) => _addToCart(context, p),
+              ),
+            ],
+
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
