@@ -7,7 +7,7 @@ import 'package:icemacha/screens/cart.dart';
 import 'package:icemacha/screens/profile.dart';
 import 'package:icemacha/screens/about.dart';
 import 'package:icemacha/screens/contact.dart';
-import 'package:icemacha/utils/auth_provider.dart';
+import 'package:icemacha/providers/auth_provider.dart';
 
 class AppShell extends StatefulWidget {
   final int initialTabIndex;

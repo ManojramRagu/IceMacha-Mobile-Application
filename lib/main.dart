@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:icemacha/core/theme.dart';
 import 'package:icemacha/core/shell.dart';
-import 'package:icemacha/utils/auth_provider.dart';
-import 'package:icemacha/utils/product_catalog_provider.dart';
-import 'package:icemacha/utils/cart_provider.dart';
-import 'package:icemacha/utils/theme_provider.dart';
+import 'package:icemacha/providers/auth_provider.dart';
+import 'package:icemacha/providers/product_catalog_provider.dart';
+import 'package:icemacha/providers/cart_provider.dart';
+import 'package:icemacha/providers/theme_provider.dart';
+
+import 'package:icemacha/screens/order_placed.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +33,10 @@ class MyApp extends StatelessWidget {
           darkTheme: AppTheme.dark,
           themeMode: context.watch<ThemeProvider>().mode,
           home: const AppShell(initialTabIndex: 3),
+          routes: {
+            '/home': (context) => const AppShell(initialTabIndex: 0),
+            '/order-placed': (context) => const OrderPlacedScreen(),
+          },
         ),
       ),
     );

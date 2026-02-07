@@ -1,13 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:icemacha/utils/product.dart';
-import 'package:icemacha/utils/product_catalog_provider.dart';
-import 'package:icemacha/utils/cart_provider.dart';
+import 'package:icemacha/models/product.dart';
+import 'package:icemacha/providers/product_catalog_provider.dart';
+import 'package:icemacha/providers/cart_provider.dart';
 import 'package:icemacha/widgets/menu_section.dart';
 import 'package:icemacha/screens/item.dart';
 
-class MenuScreen extends StatelessWidget {
+class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
+
+  @override
+  State<MenuScreen> createState() => _MenuScreenState();
+}
+
+class _MenuScreenState extends State<MenuScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Ensure data is fetched when screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProductCatalogProvider>().fetchData();
+    });
+  }
 
   void _openItem(BuildContext context, Product p) {
     Navigator.of(
@@ -47,8 +61,6 @@ class MenuScreen extends StatelessWidget {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final promos = catalog.promotions();
-
     String? lastGroup;
     List<Widget> buildSections() {
       final widgets = <Widget>[];
@@ -85,63 +97,67 @@ class MenuScreen extends StatelessWidget {
       return widgets;
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(0, 16, 0, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: Image.asset(
-                'assets/img/hero/menu.webp',
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Center(
-              child: Text(
-                'Menu',
-                style: tt.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: cs.primary,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          ...buildSections(),
-
-          if (promos.isNotEmpty) ...[
+    return RefreshIndicator(
+      onRefresh: () async {
+        await context.read<ProductCatalogProvider>().fetchData();
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(0, 16, 0, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
-              child: Text(
-                'Promotions',
-                style: tt.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: cs.tertiary,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.asset(
+                  'assets/img/hero/menu.webp',
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
-            MenuSection(
-              key: const ValueKey('Promotions'),
-              title: 'Limited',
-              products: promos,
-              expanded: catalog.isExpanded('Promotions'),
-              onToggleExpand: () => catalog.toggleExpanded('Promotions'),
-              onSelect: (p) => _openItem(context, p),
-              onAdd: (p) => _addToCart(context, p),
-            ),
-          ],
+            const SizedBox(height: 12),
 
-          const SizedBox(height: 24),
-        ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: Text(
+                  'Menu',
+                  style: tt.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: cs.primary,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
+                  hintText: 'Search menu...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                onChanged: (value) {
+                  context.read<ProductCatalogProvider>().updateSearchQuery(
+                    value,
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            ...buildSections(),
+
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }

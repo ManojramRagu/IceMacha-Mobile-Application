@@ -1,5 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:icemacha/utils/product.dart';
+import 'package:icemacha/models/product.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -46,10 +47,45 @@ class ProductCard extends StatelessWidget {
                 ),
                 child: SizedBox(
                   height: width,
-                  child: Image.asset(
-                    product.imagePath,
+                  child: CachedNetworkImage(
+                    imageUrl: product.imageUrl,
                     fit: BoxFit.cover,
                     width: double.infinity,
+                    placeholder: (context, url) => Container(
+                      color: cs.surfaceContainerHighest,
+                      child: const Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) {
+                      // Fallback logic
+                      var assetPath = product.imagePath;
+                      if (!assetPath.startsWith('assets/')) {
+                        // Assuming legacy or new paths are relative to assets/img if not absolute
+                        // Note: For 'products/...' paths, this becomes 'assets/img/products/...' which likely matches local structure.
+                        assetPath = 'assets/img/$assetPath';
+                      }
+
+                      return Image.asset(
+                        assetPath,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        errorBuilder: (context, error, stackTrace) {
+                          // Ultimate fallback if even asset is missing
+                          return Container(
+                            color: Colors.grey[200],
+                            child: const Icon(
+                              Icons.broken_image,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
               ),

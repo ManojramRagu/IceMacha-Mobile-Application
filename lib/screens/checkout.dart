@@ -3,8 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:icemacha/widgets/form.dart';
 import 'package:icemacha/utils/validation.dart';
 import 'package:icemacha/utils/input_formatters.dart';
-import 'package:icemacha/utils/cart_provider.dart';
-import 'package:icemacha/screens/order_placed.dart';
+import 'package:icemacha/providers/cart_provider.dart';
 
 enum PaymentMethod { cash, card }
 
@@ -64,23 +63,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     // Validate only currently mounted fields
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
-    setState(() => _submitting = true);
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Calculate payment and delivery details
+    final paymentMethodLabel = _pay == PaymentMethod.card ? 'CARD' : 'CASH';
 
-    // Freeze lines BEFORE clearing the cart
-    final frozenLines = cart.items
-        .map(
-          (i) => OrderLineView(
-            title: i.product.title,
-            qty: i.qty,
-            unitPrice: i.product.price,
-          ),
-        )
-        .toList(growable: false);
-
-    final paymentMethod = _pay == PaymentMethod.card ? 'CARD' : 'CASH';
-
-    // Delivery label for success page
     String deliveryLabel;
     if (_delivery == DeliveryOption.home) {
       deliveryLabel = 'Home';
@@ -90,23 +75,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       deliveryLabel = city.isEmpty ? addr : '$addr, $city';
     }
 
-    final receipt = OrderReceipt(
-      orderNo: DateTime.now().millisecondsSinceEpoch.toString().substring(7),
-      dateTime: DateTime.now(),
-      paymentMethod: paymentMethod,
-      city: deliveryLabel,
-      lines: frozenLines,
-      total: cart.subtotal,
+    // Call the central checkout logic
+    await cart.checkout(
+      context,
+      paymentMethod: paymentMethodLabel,
+      deliveryAddress: deliveryLabel,
     );
 
-    cart.clear();
-
-    if (!mounted) return;
-    setState(() => _submitting = false);
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => OrderPlacedScreen(receipt: receipt)),
-    );
+    // The cart.checkout method handles loading, API call, clearing cart,
+    // and navigation on success/failure.
   }
 
   @override
