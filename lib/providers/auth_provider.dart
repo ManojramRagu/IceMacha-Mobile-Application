@@ -8,6 +8,7 @@ class AuthProvider extends ChangeNotifier {
   String? _email;
   String? _displayName;
   String? _homeAddress;
+  String? _profileImagePath;
 
   int? _userId;
   String? _token;
@@ -25,6 +26,14 @@ class AuthProvider extends ChangeNotifier {
   }
 
   String? get homeAddress => _homeAddress;
+  String? get profileImagePath => _profileImagePath;
+
+  Future<void> setProfileImage(String path) async {
+    _profileImagePath = path;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_profile_image', path);
+    notifyListeners();
+  }
 
   Future<void> register({
     required String name,
@@ -137,6 +146,10 @@ class AuthProvider extends ChangeNotifier {
       _userId = prefs.getInt('auth_user_id');
     }
 
+    if (prefs.containsKey('auth_profile_image')) {
+      _profileImagePath = prefs.getString('auth_profile_image');
+    }
+
     _isAuthenticated = true;
 
     if (_email != null) {
@@ -152,6 +165,7 @@ class AuthProvider extends ChangeNotifier {
     _email = null;
     _displayName = null;
     _homeAddress = null;
+    _profileImagePath = null;
     _token = null;
     _userId = null;
 
@@ -159,6 +173,7 @@ class AuthProvider extends ChangeNotifier {
     await prefs.remove('auth_token');
     await prefs.remove('auth_email');
     await prefs.remove('auth_user_id');
+    await prefs.remove('auth_profile_image');
 
     notifyListeners();
   }

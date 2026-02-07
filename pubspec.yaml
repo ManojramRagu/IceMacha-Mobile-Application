@@ -31,12 +31,12 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^6.1.2
-  http: ^1.2.1               # For connecting to your Laravel API
-  connectivity_plus: ^6.0.3  # Network Connectivity status
-  shared_preferences: ^2.2.3 # Reading/Writing local data
-  geolocator: ^12.0.0        # Location services
-  camera: ^0.11.0+1          # Profile pictures
-  battery_plus: ^6.0.2       # Device sensors
+  http: ^1.2.1
+  connectivity_plus: ^6.0.3
+  shared_preferences: ^2.2.3
+  geolocator: ^12.0.0
+  camera: ^0.11.0+1
+  sensors_plus: ^6.1.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -44,6 +44,7 @@ dependencies:
   flutter_svg: ^2.0.10
   path_provider: ^2.1.5
   cached_network_image: ^3.4.1
+  battery_plus: ^7.0.0
 
 dev_dependencies:
   flutter_test:

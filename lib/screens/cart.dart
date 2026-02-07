@@ -1,5 +1,9 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:icemacha/screens/checkout.dart';
 import 'package:icemacha/providers/cart_provider.dart';
 import 'package:icemacha/widgets/form.dart';
@@ -7,9 +11,104 @@ import 'package:icemacha/widgets/form.dart';
 import 'package:icemacha/core/responsive.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   final VoidCallback? onBrowseMenu;
   const CartScreen({super.key, this.onBrowseMenu});
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  StreamSubscription<UserAccelerometerEvent>? _subscription;
+  bool _isDialogOpen = false;
+  DateTime? _lastShakeTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _startListening();
+  }
+
+  void _startListening() {
+    _subscription = userAccelerometerEventStream().listen((
+      UserAccelerometerEvent event,
+    ) {
+      if (_isDialogOpen) return;
+
+      // Calculate total acceleration (magnitude)
+      // userAccelerometerEventStream excludes gravity, so we only measure movement.
+      double acceleration = sqrt(
+        event.x * event.x + event.y * event.y + event.z * event.z,
+      );
+
+      // Debug print to help tune threshold
+      // debugPrint('FORCE: $acceleration - (Target: 8.0)');
+
+      // Threshold lowered to 8.0 and using userAccelerometer for better sensitivity
+      if (acceleration > 1.0) {
+        final now = DateTime.now();
+        if (_lastShakeTime != null &&
+            now.difference(_lastShakeTime!) < const Duration(seconds: 1)) {
+          return;
+        }
+
+        _lastShakeTime = now;
+        _showClearCartDialog();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _showClearCartDialog() async {
+    if (_isDialogOpen) return;
+
+    final cart = context.read<CartProvider>();
+    if (cart.isEmpty) return; // Don't show if empty
+
+    setState(() {
+      _isDialogOpen = true;
+    });
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Shake to Clear?'),
+        content: const Text('Do you want to empty your entire cart?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              cart.clear();
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Cart cleared via gesture!')),
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+
+    if (mounted) {
+      setState(() {
+        _isDialogOpen = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +138,7 @@ class CartScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               OutlinedButton.icon(
-                onPressed: onBrowseMenu,
+                onPressed: widget.onBrowseMenu,
                 icon: const Icon(Icons.restaurant_menu),
                 label: const Text('Browse Menu'),
               ),
@@ -182,6 +281,13 @@ class CartScreen extends StatelessWidget {
           icon: const Icon(Icons.payments),
           label: const Text('Checkout'),
         ),
+        const SizedBox(height: 12),
+        TextButton.icon(
+          onPressed: _showClearCartDialog,
+          icon: const Icon(Icons.delete_forever),
+          label: const Text('Clear Entire Cart'),
+          style: TextButton.styleFrom(foregroundColor: Colors.red),
+        ),
       ],
     );
 
@@ -195,9 +301,19 @@ class CartScreen extends StatelessWidget {
             Expanded(
               child: ListView(
                 children: [
-                  Text(
-                    'Your Cart',
-                    style: tt.headlineSmall?.copyWith(color: cs.primary),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Your Cart',
+                        style: tt.headlineSmall?.copyWith(color: cs.primary),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.vibration),
+                        onPressed: _showClearCartDialog,
+                        tooltip: 'Simulate Shake',
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
                   ...cart.items.map(itemCard),
@@ -229,7 +345,20 @@ class CartScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: [
-        Text('Your Cart', style: tt.headlineSmall?.copyWith(color: cs.primary)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Your Cart',
+              style: tt.headlineSmall?.copyWith(color: cs.primary),
+            ),
+            IconButton(
+              icon: const Icon(Icons.vibration),
+              onPressed: _showClearCartDialog,
+              tooltip: 'Simulate Shake',
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
 
         // Items
