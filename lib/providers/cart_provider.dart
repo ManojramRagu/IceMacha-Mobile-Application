@@ -9,11 +9,16 @@ class CartItem {
   CartItem({required this.product, required this.qty});
   int get lineTotal => product.price * qty;
 
+  // New getter for CartScreen
+  String get imageUrl =>
+      'https://d36bnb8wo21edh.cloudfront.net/${product.imagePath}';
+
   Map<String, dynamic> toJson() => {
     'productId': product.id,
     'title': product.title,
     'price': product.price,
     'quantity': qty,
+    'imagePath': product.imagePath,
   };
 
   factory CartItem.fromJson(Map<String, dynamic> json) {
@@ -23,7 +28,7 @@ class CartItem {
         title: json['title'],
         categoryPath: '', // Dummy
         price: json['price'],
-        imagePath: '', // Dummy
+        imagePath: json['imagePath'] ?? '', // Restored path
         description: '', // Dummy
         isPromotion: false, // Dummy
       ),
