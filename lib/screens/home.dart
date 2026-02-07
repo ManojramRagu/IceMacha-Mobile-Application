@@ -5,7 +5,6 @@ import 'package:icemacha/services/location_service.dart';
 import 'package:icemacha/widgets/promo_carousel.dart';
 import 'package:icemacha/core/responsive.dart';
 import 'package:battery_plus/battery_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, this.onBuyNow});
@@ -61,19 +60,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  Future<void> _findNearestOutlet() async {
-    final Uri url = Uri.parse(
-      'https://www.google.com/maps/search/?api=1&query=${LocationService.shopLatitude},${LocationService.shopLongitude}',
-    );
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Could not launch maps')));
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -110,18 +96,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerRight,
-                child: FilledButton.icon(
-                  onPressed: _findNearestOutlet,
-                  icon: const Icon(Icons.map_rounded),
-                  label: const Text("Find Nearest Outlet"),
-                  style: FilledButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ),
               ),
             ],
           ),
