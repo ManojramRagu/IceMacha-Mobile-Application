@@ -136,4 +136,25 @@ class ApiService {
       rethrow;
     }
   }
+
+  Future<bool> placeOrder(Map<String, dynamic> orderData) async {
+    final url = Uri.parse('$baseUrl/v1/orders');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(orderData),
+      );
+
+      if (response.statusCode == 201) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
 }
