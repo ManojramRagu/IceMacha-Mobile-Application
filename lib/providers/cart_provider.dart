@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:icemacha/models/product.dart';
 
 class CartItem {
@@ -36,6 +38,32 @@ class CartProvider extends ChangeNotifier {
 
   final Map<String, CartItem> _items = {};
 
+  CartProvider() {
+    _loadFromDisk();
+  }
+
+  Future<void> _saveToDisk() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonList = _items.values.map((item) => item.toJson()).toList();
+    await prefs.setString('ice_macha_cart', jsonEncode(jsonList));
+  }
+
+  Future<void> _loadFromDisk() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('ice_macha_cart');
+    if (jsonString != null) {
+      final List<dynamic> decoded = jsonDecode(jsonString);
+      _items.clear();
+      for (final itemJson in decoded) {
+        if (itemJson is Map<String, dynamic>) {
+          final item = CartItem.fromJson(itemJson);
+          _items[item.product.id] = item;
+        }
+      }
+      notifyListeners();
+    }
+  }
+
   List<CartItem> get items => _items.values.toList(growable: false);
   bool get isEmpty => _items.isEmpty;
   int get count => _items.length;
@@ -54,6 +82,7 @@ class CartProvider extends ChangeNotifier {
       current.qty = (current.qty + qty).clamp(minQty, maxQty);
     }
     notifyListeners();
+    _saveToDisk();
   }
 
   void setQty(String productId, int qty) {
@@ -61,6 +90,7 @@ class CartProvider extends ChangeNotifier {
     if (item == null) return;
     item.qty = qty.clamp(minQty, maxQty);
     notifyListeners();
+    _saveToDisk();
   }
 
   void increment(String productId) =>
@@ -72,10 +102,12 @@ class CartProvider extends ChangeNotifier {
   void remove(String productId) {
     _items.remove(productId);
     notifyListeners();
+    _saveToDisk();
   }
 
   void clear() {
     _items.clear();
     notifyListeners();
+    _saveToDisk();
   }
 }
