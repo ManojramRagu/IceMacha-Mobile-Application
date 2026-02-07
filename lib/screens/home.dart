@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:icemacha/services/location_service.dart';
 import 'package:icemacha/widgets/promo_carousel.dart';
 import 'package:icemacha/core/responsive.dart';
 
@@ -44,6 +45,37 @@ class HomeScreen extends StatelessWidget {
               color: cs.primary,
             ),
           ),
+        ),
+        const SizedBox(height: 12),
+        FutureBuilder<double?>(
+          future: LocationService().getDistanceToShop(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.location_on, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "You are ${snapshot.data!.toStringAsFixed(1)} km away from our Colombo outlet.",
+                          style: tt.bodyMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
         ),
         const SizedBox(height: 12),
         Text(
