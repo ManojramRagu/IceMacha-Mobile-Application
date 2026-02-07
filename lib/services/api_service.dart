@@ -7,7 +7,11 @@ class ApiService {
 
   ApiService();
 
-  Future<String> login(String email, String password, String deviceName) async {
+  Future<Map<String, dynamic>> login(
+    String email,
+    String password,
+    String deviceName,
+  ) async {
     final url = Uri.parse('$baseUrl/login');
     final response = await http.post(
       url,
@@ -23,29 +27,15 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      // Assuming the token is returned directly as a string or in a JSON object
-      // Laravel Sanctum usually returns just the token string if configured simply,
-      // or a JSON object like { "token": "..." }
-      // The user instructions say "Implement a POST login method that sends email, password, and device_name."
-      // I'll assume standard Sanctum JSON return: { "token": "..." } or check if it's plaintext.
-      // Let's safe parse it.
-
-      // However, typical Sanctum tutorial return is often just the token string.
-      // But standard is JSON. Let's try to parse as JSON first.
       try {
         final data = jsonDecode(response.body);
-        // It might be data['token'] or just the string body.
-        // Let's assume standard response format: token
-        if (data is Map && data.containsKey('token')) {
-          return data['token'];
+        if (data is Map<String, dynamic>) {
+          return data;
         }
-        // If not a map with token, maybe the body IS the token?
-        // But safer to assume standard API response.
-        // Let's start with expecting a JSON with 'token' or 'access_token'.
-        if (data is String) return data; // Just in case
-        return response.body;
+        // Fallback for unexpected format, though we expect a Map
+        return {'token': response.body};
       } catch (e) {
-        return response.body;
+        return {'token': response.body};
       }
     } else {
       // Try to parse server error message

@@ -1,7 +1,10 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:icemacha/models/product.dart';
+import 'package:icemacha/services/api_service.dart';
+import 'package:icemacha/providers/auth_provider.dart';
 
 class CartItem {
   final Product product;
@@ -42,6 +45,7 @@ class CartProvider extends ChangeNotifier {
   static const int maxQty = 20;
 
   final Map<String, CartItem> _items = {};
+  final ApiService _apiService = ApiService();
 
   CartProvider() {
     _loadFromDisk();
@@ -114,5 +118,80 @@ class CartProvider extends ChangeNotifier {
     _items.clear();
     notifyListeners();
     _saveToDisk();
+  }
+
+  Future<void> checkout(BuildContext context) async {
+    if (isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Cart is empty')));
+      return;
+    }
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    // Check if user is logged in
+    if (!authProvider.isAuthenticated) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please login to checkout')));
+      // Optional: Navigate to login screen
+      return;
+    }
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final orderData = {
+        'user_id': authProvider.userId,
+        'total_price': subtotal,
+        'items': items
+            .map(
+              (item) => {
+                'product_id': item.product.id,
+                'quantity': item.qty,
+                'price': item.product.price,
+              },
+            )
+            .toList(),
+      };
+
+      final success = await _apiService.placeOrder(orderData);
+
+      // Close loading dialog
+      if (context.mounted) Navigator.of(context).pop();
+
+      if (success) {
+        clear();
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Order placed successfully!')),
+          );
+          // Navigate to Home or Success screen
+          // Assuming Home is the initial route or main screen
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to place order. Please try again.'),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) Navigator.of(context).pop(); // Close dialog
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('An error occurred: $e')));
+      }
+    }
   }
 }

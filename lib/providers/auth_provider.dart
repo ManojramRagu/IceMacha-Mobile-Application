@@ -9,11 +9,13 @@ class AuthProvider extends ChangeNotifier {
   String? _displayName;
   String? _homeAddress;
 
+  int? _userId;
   String? _token;
 
   bool get isAuthenticated => _isAuthenticated;
   String? get token => _token;
   String? get email => _email;
+  int? get userId => _userId;
   String get name {
     final n = (_displayName ?? '').trim();
     if (n.isNotEmpty) return n;
@@ -51,6 +53,13 @@ class AuthProvider extends ChangeNotifier {
 
       if (response.containsKey('token')) {
         _token = response['token'];
+        if (response.containsKey('user')) {
+          final user = response['user'];
+          if (user is Map) {
+            _userId = user['id'];
+          }
+        }
+
         _isAuthenticated = true;
         _email = email.trim();
         _displayName = name.trim();
@@ -59,6 +68,9 @@ class AuthProvider extends ChangeNotifier {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('auth_token', _token!);
         await prefs.setString('auth_email', _email!);
+        if (_userId != null) {
+          await prefs.setInt('auth_user_id', _userId!);
+        }
 
         notifyListeners();
       } else {
@@ -76,22 +88,37 @@ class AuthProvider extends ChangeNotifier {
 
   Future<bool> login({required String email, required String password}) async {
     try {
-      final token = await _api.login(email, password, 'mobile_app');
-      _isAuthenticated = true;
-      _email = email.trim();
-      _token = token;
+      final response = await _api.login(email, password, 'mobile_app');
 
-      if ((_displayName ?? '').trim().isEmpty) {
-        _displayName = _email!.split('@').first;
+      if (response.containsKey('token')) {
+        _token = response['token'];
+        _isAuthenticated = true;
+        _email = email.trim();
+
+        if (response.containsKey('user')) {
+          final user = response['user'];
+          if (user is Map) {
+            _userId = user['id'];
+            // Could also update name/address from user object here if available
+          }
+        }
+
+        if ((_displayName ?? '').trim().isEmpty) {
+          _displayName = _email!.split('@').first;
+        }
+
+        // Save token
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_token', _token!);
+        await prefs.setString('auth_email', _email!);
+        if (_userId != null) {
+          await prefs.setInt('auth_user_id', _userId!);
+        }
+
+        notifyListeners();
+        return true;
       }
-
-      // Save token
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_token', token);
-      await prefs.setString('auth_email', _email!);
-
-      notifyListeners();
-      return true;
+      return false;
     } catch (e) {
       if (kDebugMode) {
         print('Login error: $e');
@@ -106,6 +133,10 @@ class AuthProvider extends ChangeNotifier {
 
     _token = prefs.getString('auth_token');
     _email = prefs.getString('auth_email');
+    if (prefs.containsKey('auth_user_id')) {
+      _userId = prefs.getInt('auth_user_id');
+    }
+
     _isAuthenticated = true;
 
     if (_email != null) {
@@ -122,10 +153,12 @@ class AuthProvider extends ChangeNotifier {
     _displayName = null;
     _homeAddress = null;
     _token = null;
+    _userId = null;
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
     await prefs.remove('auth_email');
+    await prefs.remove('auth_user_id');
 
     notifyListeners();
   }
