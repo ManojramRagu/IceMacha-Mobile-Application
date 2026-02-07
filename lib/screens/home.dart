@@ -1,13 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:icemacha/services/location_service.dart';
 import 'package:icemacha/widgets/promo_carousel.dart';
 import 'package:icemacha/core/responsive.dart';
+import 'package:battery_plus/battery_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, this.onBuyNow});
 
   final VoidCallback? onBuyNow;
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   // Asset paths
   static const _hero = 'assets/img/hero/hero.webp';
   static const List<String> _promos = [
@@ -18,12 +27,107 @@ class HomeScreen extends StatelessWidget {
     'assets/img/products/Promotions/Summer-Coolers.webp',
   ];
 
+  final Battery _battery = Battery();
+  int _batteryLevel = 100;
+  StreamSubscription<BatteryState>? _batteryStateSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _initBattery();
+    _batteryStateSubscription = _battery.onBatteryStateChanged.listen((
+      BatteryState state,
+    ) {
+      _checkBatteryLevel();
+    });
+  }
+
+  Future<void> _initBattery() async {
+    _checkBatteryLevel();
+  }
+
+  Future<void> _checkBatteryLevel() async {
+    final level = await _battery.batteryLevel;
+    if (mounted) {
+      setState(() {
+        _batteryLevel = level;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _batteryStateSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _findNearestOutlet() async {
+    final Uri url = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=${LocationService.shopLatitude},${LocationService.shopLongitude}',
+    );
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Could not launch maps')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
     final wide = isWide(MediaQuery.sizeOf(context).width);
+    final showBatteryWarning = _batteryLevel < 40;
+
+    Widget batteryBanner() {
+      if (!showBatteryWarning) return const SizedBox.shrink();
+      return Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        color: cs.secondaryContainer,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.battery_alert_rounded,
+                    color: cs.onSecondaryContainer,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      "Low Charge? We at IceMacha provide charging outlets. Come visit us!",
+                      style: tt.bodyMedium?.copyWith(
+                        color: cs.onSecondaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton.icon(
+                  onPressed: _findNearestOutlet,
+                  icon: const Icon(Icons.map_rounded),
+                  label: const Text("Find Nearest Outlet"),
+                  style: FilledButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     Widget heroBanner() => ClipRRect(
       borderRadius: BorderRadius.circular(16),
@@ -112,7 +216,7 @@ class HomeScreen extends StatelessWidget {
         Align(
           alignment: Alignment.center,
           child: FilledButton(
-            onPressed: onBuyNow,
+            onPressed: widget.onBuyNow,
             style: FilledButton.styleFrom(minimumSize: const Size(140, 42)),
             child: const Text('Buy Now'),
           ),
@@ -125,19 +229,33 @@ class HomeScreen extends StatelessWidget {
     if (wide) {
       return Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
           children: [
-            Expanded(child: heroBanner()),
-            const SizedBox(width: 16),
-            Expanded(child: SingleChildScrollView(child: introAndPromos())),
+            batteryBanner(),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: heroBanner()),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: SingleChildScrollView(child: introAndPromos()),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       );
     }
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-      children: [heroBanner(), const SizedBox(height: 20), introAndPromos()],
+      children: [
+        batteryBanner(),
+        heroBanner(),
+        const SizedBox(height: 20),
+        introAndPromos(),
+      ],
     );
   }
 }

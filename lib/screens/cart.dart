@@ -20,7 +20,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  StreamSubscription<AccelerometerEvent>? _subscription;
+  StreamSubscription<UserAccelerometerEvent>? _subscription;
   bool _isDialogOpen = false;
   DateTime? _lastShakeTime;
 
@@ -31,23 +31,25 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   void _startListening() {
-    _subscription = accelerometerEventStream().listen((
-      AccelerometerEvent event,
+    _subscription = userAccelerometerEventStream().listen((
+      UserAccelerometerEvent event,
     ) {
       if (_isDialogOpen) return;
 
       // Calculate total acceleration (magnitude)
-      // Standard gravity is ~9.8 m/s². Shake usually produces high spikes.
+      // userAccelerometerEventStream excludes gravity, so we only measure movement.
       double acceleration = sqrt(
         event.x * event.x + event.y * event.y + event.z * event.z,
       );
 
-      // Threshold lowered to 15.0 for easier emulator testing
-      if (acceleration > 15.0) {
+      // Debug print to help tune threshold
+      // debugPrint('FORCE: $acceleration - (Target: 8.0)');
+
+      // Threshold lowered to 8.0 and using userAccelerometer for better sensitivity
+      if (acceleration > 1.0) {
         final now = DateTime.now();
         if (_lastShakeTime != null &&
             now.difference(_lastShakeTime!) < const Duration(seconds: 1)) {
-          // Debounce: ignore shakes within 1 second of the last one
           return;
         }
 
@@ -90,6 +92,9 @@ class _CartScreenState extends State<CartScreen> {
             onPressed: () {
               cart.clear();
               Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Cart cleared via gesture!')),
+              );
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Clear'),
@@ -296,9 +301,19 @@ class _CartScreenState extends State<CartScreen> {
             Expanded(
               child: ListView(
                 children: [
-                  Text(
-                    'Your Cart',
-                    style: tt.headlineSmall?.copyWith(color: cs.primary),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Your Cart',
+                        style: tt.headlineSmall?.copyWith(color: cs.primary),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.vibration),
+                        onPressed: _showClearCartDialog,
+                        tooltip: 'Simulate Shake',
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
                   ...cart.items.map(itemCard),
@@ -330,7 +345,20 @@ class _CartScreenState extends State<CartScreen> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: [
-        Text('Your Cart', style: tt.headlineSmall?.copyWith(color: cs.primary)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Your Cart',
+              style: tt.headlineSmall?.copyWith(color: cs.primary),
+            ),
+            IconButton(
+              icon: const Icon(Icons.vibration),
+              onPressed: _showClearCartDialog,
+              tooltip: 'Simulate Shake',
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
 
         // Items
