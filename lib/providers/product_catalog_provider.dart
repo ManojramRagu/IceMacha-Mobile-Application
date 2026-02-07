@@ -8,6 +8,11 @@ import 'package:icemacha/services/local_storage_service.dart';
 class ProductCatalogProvider extends ChangeNotifier {
   bool _isLoading = true;
   List<Product> _all = [];
+
+  // Search State
+  String _searchQuery = '';
+  String get searchQuery => _searchQuery;
+
   final Set<String> _expanded = {};
 
   // Complete category list to ensure Food and Snacks are shown
@@ -48,6 +53,11 @@ class ProductCatalogProvider extends ChangeNotifier {
     } else {
       _expanded.add(path);
     }
+    notifyListeners();
+  }
+
+  void updateSearchQuery(String query) {
+    _searchQuery = query;
     notifyListeners();
   }
 
@@ -171,12 +181,24 @@ class ProductCatalogProvider extends ChangeNotifier {
     }
   }
 
-  /// Corrected logic to prevent infinite recursion and duplicate keys
-  List<Product> byCategory(String path) {
-    return _all.where((p) => p.categoryPath == path).toList();
+  List<Product> get _filteredList {
+    if (_searchQuery.isEmpty) {
+      return _all;
+    }
+
+    final query = _searchQuery.toLowerCase();
+    return _all.where((product) {
+      return product.title.toLowerCase().contains(query) ||
+          product.description.toLowerCase().contains(query);
+    }).toList();
   }
 
-  List<Product> promotions() => _all
+  /// Corrected logic to prevent infinite recursion and duplicate keys
+  List<Product> byCategory(String path) {
+    return _filteredList.where((p) => p.categoryPath == path).toList();
+  }
+
+  List<Product> promotions() => _filteredList
       .where((p) => p.categoryPath == 'Promotions' || p.isPromotion)
       .toList();
 }
