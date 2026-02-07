@@ -131,7 +131,27 @@ class _MenuScreenState extends State<MenuScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TextField(
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
+                  hintText: 'Search menu...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                onChanged: (value) {
+                  context.read<ProductCatalogProvider>().updateSearchQuery(
+                    value,
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
 
             ...buildSections(),
 
