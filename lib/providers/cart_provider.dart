@@ -6,6 +6,28 @@ class CartItem {
   int qty;
   CartItem({required this.product, required this.qty});
   int get lineTotal => product.price * qty;
+
+  Map<String, dynamic> toJson() => {
+    'productId': product.id,
+    'title': product.title,
+    'price': product.price,
+    'quantity': qty,
+  };
+
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      product: Product(
+        id: json['productId'],
+        title: json['title'],
+        categoryPath: '', // Dummy
+        price: json['price'],
+        imagePath: '', // Dummy
+        description: '', // Dummy
+        isPromotion: false, // Dummy
+      ),
+      qty: json['quantity'],
+    );
+  }
 }
 
 class CartProvider extends ChangeNotifier {
