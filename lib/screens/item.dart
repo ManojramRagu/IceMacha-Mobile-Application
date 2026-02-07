@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:icemacha/models/product.dart';
 import 'package:icemacha/providers/cart_provider.dart';
 import 'package:icemacha/widgets/form.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ItemScreen extends StatefulWidget {
   final Product product;
@@ -137,14 +138,20 @@ class _ItemScreenState extends State<ItemScreen> {
             fit: StackFit.expand,
             children: [
               ColoredBox(color: cs.surfaceContainerHighest),
-              Image.asset(
-                p.imagePath,
+              CachedNetworkImage(
+                imageUrl: p.imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Center(
-                  child: Icon(
-                    Icons.broken_image,
-                    color: cs.onSurfaceVariant,
-                    size: 40,
+                placeholder: (context, url) =>
+                    Center(child: CircularProgressIndicator(color: cs.primary)),
+                errorWidget: (context, url, error) => Image.asset(
+                  p.imagePath,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Center(
+                    child: Icon(
+                      Icons.broken_image,
+                      color: cs.onSurfaceVariant,
+                      size: 40,
+                    ),
                   ),
                 ),
               ),
