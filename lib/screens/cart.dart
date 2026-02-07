@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:icemacha/screens/checkout.dart';
 import 'package:icemacha/providers/cart_provider.dart';
 import 'package:icemacha/widgets/form.dart';
+
 import 'package:icemacha/core/responsive.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CartScreen extends StatelessWidget {
   final VoidCallback? onBrowseMenu;
@@ -66,11 +68,34 @@ class CartScreen extends StatelessWidget {
               // image
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: Image.asset(
-                  p.imagePath,
+                child: CachedNetworkImage(
+                  imageUrl: item.imageUrl,
                   width: 64,
                   height: 64,
                   fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    color: cs.surfaceVariant,
+                    child: const Center(
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Image.asset(
+                    p.imagePath,
+                    width: 64,
+                    height: 64,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Container(
+                      color: cs.surfaceVariant,
+                      child: Icon(
+                        Icons.broken_image,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
