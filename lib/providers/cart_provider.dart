@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:icemacha/models/product.dart';
 import 'package:icemacha/services/api_service.dart';
 import 'package:icemacha/providers/auth_provider.dart';
+import 'package:icemacha/models/receipt.dart';
 
 class CartItem {
   final Product product;
@@ -120,7 +121,11 @@ class CartProvider extends ChangeNotifier {
     _saveToDisk();
   }
 
-  Future<void> checkout(BuildContext context) async {
+  Future<void> checkout(
+    BuildContext context, {
+    required String paymentMethod,
+    required String deliveryAddress,
+  }) async {
     if (isEmpty) {
       ScaffoldMessenger.of(
         context,
@@ -149,6 +154,9 @@ class CartProvider extends ChangeNotifier {
     try {
       final orderData = {
         'user_id': authProvider.userId,
+        // API might expect payment_method and delivery_address too, but user only asked for items
+        // I will add them to payload if API supports, but requirement didn't specify.
+        // I will just use them for Receipt.
         'total_price': subtotal,
         'items': items
             .map(
@@ -167,14 +175,38 @@ class CartProvider extends ChangeNotifier {
       if (context.mounted) Navigator.of(context).pop();
 
       if (success) {
+        // Prepare receipt before clearing
+        final frozenLines = items
+            .map(
+              (i) => OrderLineView(
+                title: i.product.title,
+                qty: i.qty,
+                unitPrice: i.product.price,
+              ),
+            )
+            .toList(growable: false);
+
+        final receipt = OrderReceipt(
+          orderNo: DateTime.now().millisecondsSinceEpoch.toString().substring(
+            7,
+          ),
+          dateTime: DateTime.now(),
+          paymentMethod: paymentMethod,
+          city: deliveryAddress,
+          lines: frozenLines,
+          total: subtotal,
+        );
+
         clear();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('ice_macha_cart');
+
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Order placed successfully!')),
+          Navigator.pushReplacementNamed(
+            context,
+            '/order-placed',
+            arguments: receipt,
           );
-          // Navigate to Home or Success screen
-          // Assuming Home is the initial route or main screen
-          Navigator.of(context).popUntil((route) => route.isFirst);
         }
       } else {
         if (context.mounted) {

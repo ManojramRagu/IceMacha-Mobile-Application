@@ -63,8 +63,24 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     // Validate only currently mounted fields
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
+    // Calculate payment and delivery details
+    final paymentMethodLabel = _pay == PaymentMethod.card ? 'CARD' : 'CASH';
+
+    String deliveryLabel;
+    if (_delivery == DeliveryOption.home) {
+      deliveryLabel = 'Home';
+    } else {
+      final addr = _address.text.trim();
+      final city = _city.text.trim();
+      deliveryLabel = city.isEmpty ? addr : '$addr, $city';
+    }
+
     // Call the central checkout logic
-    await cart.checkout(context);
+    await cart.checkout(
+      context,
+      paymentMethod: paymentMethodLabel,
+      deliveryAddress: deliveryLabel,
+    );
 
     // The cart.checkout method handles loading, API call, clearing cart,
     // and navigation on success/failure.
