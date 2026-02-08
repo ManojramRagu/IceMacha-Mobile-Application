@@ -61,80 +61,51 @@ class _MenuScreenState extends State<MenuScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    String? lastGroup;
-    List<Widget> buildSections() {
-      final widgets = <Widget>[];
-      for (final path in catalog.categoryOrder) {
-        final group = path.split('/').first;
-        if (group != lastGroup) {
-          lastGroup = group;
-          widgets.add(
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
-              child: Text(
-                group,
-                style: tt.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: cs.tertiary,
-                ),
-              ),
-            ),
-          );
-        }
-        final products = catalog.byCategory(path);
-        widgets.add(
-          MenuSection(
-            key: ValueKey(path),
-            title: catalog.titleFor(path),
-            products: products,
-            expanded: catalog.isExpanded(path),
-            onToggleExpand: () => catalog.toggleExpanded(path),
-            onSelect: (p) => _openItem(context, p),
-            onAdd: (p) => _addToCart(context, p),
-          ),
-        );
-      }
-      return widgets;
-    }
-
     return RefreshIndicator(
       onRefresh: () async {
         await context.read<ProductCatalogProvider>().fetchData();
       },
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(0, 16, 0, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: Image.asset(
-                  'assets/img/hero/menu.webp',
-                  fit: BoxFit.cover,
+      child: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 200.0,
+            floating: false,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              centerTitle: true,
+              title: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.5),
+                      blurRadius: 10,
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Center(
-                child: Text(
-                  'Menu',
-                  style: tt.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: cs.primary,
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset('assets/img/hero/menu.webp', fit: BoxFit.cover),
+                  const DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Colors.black54],
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
               child: TextField(
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),
@@ -143,6 +114,8 @@ class _MenuScreenState extends State<MenuScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  filled: true,
+                  fillColor: cs.surface,
                 ),
                 onChanged: (value) {
                   context.read<ProductCatalogProvider>().updateSearchQuery(
@@ -151,13 +124,46 @@ class _MenuScreenState extends State<MenuScreen> {
                 },
               ),
             ),
-            const SizedBox(height: 16),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final path = catalog.categoryOrder[index];
+              final group = path.split('/').first;
+              final isNewGroup =
+                  index == 0 ||
+                  catalog.categoryOrder[index - 1].split('/').first != group;
 
-            ...buildSections(),
+              final products = catalog.byCategory(path);
 
-            const SizedBox(height: 24),
-          ],
-        ),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (isNewGroup)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 6),
+                      child: Text(
+                        group,
+                        style: tt.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: cs.tertiary,
+                        ),
+                      ),
+                    ),
+                  MenuSection(
+                    key: ValueKey(path),
+                    title: catalog.titleFor(path),
+                    products: products,
+                    expanded: catalog.isExpanded(path),
+                    onToggleExpand: () => catalog.toggleExpanded(path),
+                    onSelect: (p) => _openItem(context, p),
+                    onAdd: (p) => _addToCart(context, p),
+                  ),
+                ],
+              );
+            }, childCount: catalog.categoryOrder.length),
+          ),
+          const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
+        ],
       ),
     );
   }
