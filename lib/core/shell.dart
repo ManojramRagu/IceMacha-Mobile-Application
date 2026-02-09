@@ -20,6 +20,7 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   late int _tabIndex;
   late int _pageIndex;
+  bool _isLoading = true;
   bool? _wasAuthed;
 
   AuthProvider? _auth;
@@ -29,6 +30,26 @@ class _AppShellState extends State<AppShell> {
     super.initState();
     _tabIndex = widget.initialTabIndex.clamp(0, 3);
     _pageIndex = _tabIndex;
+    _initApp();
+  }
+
+  Future<void> _initApp() async {
+    // Only try auto-login if we haven't already determined auth state
+    // (though initState runs once, safe to just call it)
+    final authProvider = context.read<AuthProvider>();
+    final isLoggedIn = await authProvider.tryAutoLogin();
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+      // If logged in, go to Home (0). If not, stay on initial tab or go to Login (3).
+      // Typically initialTabIndex=3 (Profile/Login) is default.
+      if (isLoggedIn) {
+        _tabIndex = 0;
+        _pageIndex = 0;
+      }
+    });
   }
 
   @override
@@ -106,6 +127,10 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final authed = context.watch<AuthProvider>().isAuthenticated;
     final pages = _buildPages();
 
