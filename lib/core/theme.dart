@@ -22,7 +22,7 @@ class AppTheme {
     final scheme = base.copyWith(
       primary: AppColors.green,
       surface: isDark ? const Color(0xFF121212) : AppColors.pink,
-      secondaryContainer: AppColors.peach,
+      secondaryContainer: isDark ? base.secondaryContainer : AppColors.peach,
       tertiary: AppColors.brown,
     );
 
